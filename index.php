@@ -208,7 +208,8 @@ echo "</div>";
 
 <!-- Formulaire pour envoyer un message ou une image -->
 <form id="messageForm" method="POST" enctype="multipart/form-data">
-    <textarea id="messageInput" name="message" placeholder="Tapez votre message"></textarea><br>
+    <textarea id="messageInput" name="message" placeholder="Tapez votre message"></textarea>
+    <button type="button" class="open-emoji-popup">😄</button>
     <input type="file" name="image"><br>
     <input type="submit" value="Envoyer">
 </form>
@@ -358,11 +359,15 @@ echo "</div>";
     }
 
     // Fonction pour afficher la popup d'emojis
-    function showEmojiPopup(inputElement) {
-        activeEmojiInput = inputElement;
-        const rect = inputElement.getBoundingClientRect();
-        //emojiPopup.style.left = `${rect.left}px`;
-        //emojiPopup.style.top = `${rect.bottom + window.scrollY}px`;
+    function showEmojiPopup(inputElement = null) {
+        console.log(inputElement);
+        if(inputElement !== null && inputElement.classList.contains('emoji-input'))
+        {
+            activeEmojiInput = inputElement;
+            const rect = inputElement.getBoundingClientRect();
+            //emojiPopup.style.left = `${rect.left}px`;
+            //emojiPopup.style.top = `${rect.bottom + window.scrollY}px`;
+        }
         emojiPopup.style.left = '15vw';
         emojiPopup.style.top = `calc(5vh + ${window.scrollY}px)`;
         emojiPopup.style.display = 'block';
@@ -371,6 +376,7 @@ echo "</div>";
     // Fonction pour fermer la popup d'emojis
     function hideEmojiPopup() {
         emojiPopup.style.display = 'none';
+        activeEmojiInput = null;
     }
 
     // Quand un emoji est cliqué dans la popup
@@ -379,6 +385,10 @@ echo "</div>";
         if (activeEmojiInput) {
             activeEmojiInput.value = event.target.textContent; // Remplace l'emoji dans l'input
         }
+        else
+        {
+            document.getElementById('messageInput').value += event.target.textContent;
+        }
         hideEmojiPopup();
     });
 
@@ -386,7 +396,12 @@ echo "</div>";
     document.addEventListener('click', function(event) {
         if (event.target.classList.contains('emoji-input')) {
             showEmojiPopup(event.target);
-        } else if (!emojiPopup.contains(event.target)) {
+        }
+        else if(event.target.classList.contains("open-emoji-popup"))
+        {
+            showEmojiPopup();
+        }
+        else if (!emojiPopup.contains(event.target)) {
             hideEmojiPopup();
         }
     });
