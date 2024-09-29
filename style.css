@@ -1,0 +1,96 @@
+body
+{
+	background-color: #ecf0f1;
+}
+
+#messages-container
+{
+	max-height: 70vh;
+	overflow-y: scroll;
+	border-style: dashed;
+	border-width: 2px;
+	border-radius: 5px;
+	border-color: #e67e22;
+	margin: 5px 0px;
+	padding: 5px 0px;
+}
+
+#messages-container > div
+{
+	overflow: auto;
+}
+
+#messages-container > div > div
+{
+	border-style: solid;
+	border-color: transparent;
+	border-width: 0px;
+	border-radius: 5px;
+	box-shadow: inset 3px 3px 5px #c3c3c3,
+             inset -3px -3px 5px #fdfdfd;
+	width: fit-content;
+	max-width: 70vw;
+	margin: 10px;
+	padding: 5px 10px;
+	background-color: #fff;
+}
+
+.self
+{
+	text-align: right;
+	float: right;
+}
+
+#messages-container > div > div > img
+{
+	max-height: 100px;
+	width: auto;
+}
+
+.pseudo
+{
+	font-size: 0.8em;
+}
+
+.timestamp
+{
+	font-size: 0.5em;
+}
+
+#messageForm
+{
+	display: flex;
+	flex-direction: row;
+}
+
+#messageForm > *
+{
+	margin: 0px 5px;
+}
+
+#messageForm > textarea
+{
+	width: 50vw;
+}
+
+#messageForm input[type="submit"]
+{
+	border-style: none;
+	border-radius: 3px;
+	box-shadow: 3px 3px 5px #c3c3c3,
+             -3px -3px 5px #fdfdfd;
+	background-color: #2ecc71;
+}
+
+#emojiPopup
+{
+	position: absolute;
+	background: white;
+	border: 1px solid #ccc;
+	padding: 10px;
+	z-index: 100;
+	max-width: 70vw;
+	overflow-wrap: anywhere;
+	max-height: 80vh;
+	overflow-y: scroll;
+}
