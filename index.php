@@ -166,7 +166,7 @@ foreach ($messages as $message) {
     }
     echo "<div>";
     echo "<div".(($message['pseudo'] == $pseudo) ? " class='self'" : "").">";
-    echo "<strong class='pseudo'>" . htmlspecialchars($message['pseudo']) . ":</br></strong> " . $message['content'];
+    echo "<strong class='pseudo'>" . htmlspecialchars($message['pseudo']) . "</strong></br> " . $message['content'];
     echo " </br>";
     echo " <em class='timestamp'>(" . $message['timestamp'] . ")</em>";
 
@@ -246,7 +246,7 @@ echo "</div>";
                     }
 
                     // Ajout du contenu du message
-                    messageDiv.innerHTML = `<strong class="pseudo">${message.pseudo}:</br></strong> ${message.content} <em class="timestamp"></br>(${message.timestamp})</em>`;
+                    messageDiv.innerHTML = `<strong class="pseudo">${message.pseudo}</strong></br> ${message.content} <em class="timestamp"></br>(${message.timestamp})</em>`;
 
                     const reactions = message.reactions;
 
