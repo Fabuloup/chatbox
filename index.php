@@ -217,6 +217,7 @@ echo "</div>";
 <script>
     let lastMessageId = <?php echo $lastMessageId; ?>; // L'ID du dernier message chargé
     const chatroomId = <?php echo $chatroom_id; ?>; // ID de la chatroom
+    const chatroomCode = <?php echo $code; ?>; // ID de la chatroom
     const pseudo = "<?php echo $pseudo; ?>"; // Pseudo de l'utilisateur
     // Liste des points de code emoji (de base) que nous voulons afficher
     const emojiRanges = [
@@ -270,7 +271,7 @@ echo "</div>";
                     // Formulaire pour réagir à un message avec un emoji
                     const reactionForm = document.createElement('form');
                     reactionForm.method = "POST";
-                    reactionForm.action = `?code=${chatroomId}`;
+                    reactionForm.action = `?code=${chatroomCode}`;
 
                     reactionForm.innerHTML = `
                         <input type="hidden" name="message_id" value="${message.id}">
