@@ -364,7 +364,10 @@ echo "</div>";
 
                     if(Notification.permission === "granted")
                     {
-                        new Notification(`${message.pseudo} a envoyé un message.`);
+                        new Notification(`${message.pseudo} a envoyé un message.`, {
+                            badge: "https://experiments.fabien-richard.fr/experiments/chatbox/favicon.png",
+                            icon: "https://experiments.fabien-richard.fr/experiments/chatbox/favicon.png"
+                        });
                     }
                 });
 
