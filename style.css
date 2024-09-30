@@ -1,3 +1,8 @@
+*
+{
+	font-family: arial;
+}
+
 body
 {
 	background-color: #ecf0f1;
@@ -46,6 +51,16 @@ body
 {
 	max-height: 100px;
 	width: auto;
+}
+
+#messages-container > div > div > form
+{
+	display: none;
+}
+
+#messages-container > div > div:hover > form
+{
+	display: block;
 }
 
 .pseudo
