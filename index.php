@@ -158,7 +158,7 @@ EOL;
 
 echo "<h1>Chatbox: $code</h1>";
 echo "<div id='notifications-parent'>";
-echo "<div id='notif-count'><span id='nb-of-notif'>0</span> notifications</div>"
+echo "<div id='notif-count'><span id='nb-of-notif'>0</span> notifications</div>";
 echo "<button type='button' class='clear-notifications'>Vider</button>";
 echo "<div id='notifications-container'>";
 echo "</div>";
