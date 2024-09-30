@@ -369,6 +369,11 @@ echo "</div>";
         const messageInput = document.getElementById('messageInput');
         const message = messageInput.value.trim();
 
+        if(Notification.permission !== "granted" && Notification.permission !== "denied")
+        {
+            Notification.requestPermission();
+        }
+
         if (message.length > 0) {
             // Envoi du message via AJAX
             const formData = new FormData(document.getElementById('messageForm'));
@@ -483,11 +488,5 @@ echo "</div>";
 
     // Appeler la fonction lorsque la page est chargée
     document.addEventListener('DOMContentLoaded', generateEmojis);
-    document.addEventListener('DOMContentLoaded', () => {
-        if(Notification.permission !== "granted" && Notification.permission !== "denied")
-        {
-            Notification.requestPermission();
-        }
-    });
 
 </script>
