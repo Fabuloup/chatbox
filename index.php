@@ -76,8 +76,13 @@ function removeScript($texte) {
 }
 
 function prepareImage($texte) {
-    // Utilisation d'une expression régulière pour supprimer les balises <script> et leur contenu
+    // Utilisation d'une expression régulière pour ajouter une image depuis une url
     return preg_replace('#img\:(https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~\#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~\#?&//=]*))#is', '<img src="$1" />', $texte);
+}
+
+function prepareCode($texte) {
+    // Utilisation d'une expression régulière pour ajouter une image depuis une url
+    return preg_replace('#(```)([a-zA-Z]*)\n([\s\S]*?)\n\1|`([^`]+)`#is', '<code>$3$4</code>', $texte);
 }
 
 // Envoi de nouveaux messages (texte ou image)
@@ -91,6 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message'])) {
 
     $content = nl2br($content);
     $content = prepareImage($content);
+    $content = prepareCode($content);
 
     // Si une image est envoyée
     if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {

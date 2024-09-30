@@ -1,11 +1,14 @@
-*
-{
-	font-family: arial;
-}
-
 body
 {
 	background-color: #ecf0f1;
+	font-family: arial;
+}
+
+code
+{
+	border-radius: 2px;
+	box-shadow: inset 2px 2px 2px #c3c3c3;
+	padding: 1px 4px;
 }
 
 #notifications-parent
