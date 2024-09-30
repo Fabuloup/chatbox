@@ -282,7 +282,6 @@ echo "</div>";
                 let notificationsCount = parseInt(notificationsCounter.innerText);
 
                 messages.forEach(async message => {
-                    notificationsCount += 1;
                     // Création de l'élément div pour chaque message
                     const messageDiv = document.createElement('div');
                     messageDiv.setAttribute("id", `message${message.id}`)
@@ -350,24 +349,28 @@ echo "</div>";
                     // Notifications
                     //---------------
 
-                    // On ajoute la notification
-                    const notifDiv = document.createElement('div');
-                    const messageLink = document.createElement('a');
-                    messageLink.innerHTML = `<strong>${message.pseudo}</strong> ${truncateMessage(message.content)}`;
-                    messageLink.href = `#message${message.id}`;
+                    if (message.pseudo !== pseudo) {
+                        notificationsCount += 1;
 
-                    // On ajoute le lien dans la div
-                    notifDiv.appendChild(messageLink);
+                        // On ajoute la notification
+                        const notifDiv = document.createElement('div');
+                        const messageLink = document.createElement('a');
+                        messageLink.innerHTML = `<strong>${message.pseudo}</strong> ${truncateMessage(message.content)}`;
+                        messageLink.href = `#message${message.id}`;
 
-                    // Ajouter la notification dans le conteneur
-                    notificationsContainer.appendChild(notifDiv);
+                        // On ajoute le lien dans la div
+                        notifDiv.appendChild(messageLink);
 
-                    if(Notification.permission === "granted")
-                    {
-                        new Notification(`${message.pseudo} a envoyé un message.`, {
-                            badge: "https://experiments.fabien-richard.fr/experiments/chatbox/favicon.png",
-                            icon: "https://experiments.fabien-richard.fr/experiments/chatbox/favicon.png"
-                        });
+                        // Ajouter la notification dans le conteneur
+                        notificationsContainer.appendChild(notifDiv);
+
+                        if(Notification.permission === "granted")
+                        {
+                            new Notification(`${message.pseudo} a envoyé un message.`, {
+                                badge: "https://experiments.fabien-richard.fr/experiments/chatbox/favicon.png",
+                                icon: "https://experiments.fabien-richard.fr/experiments/chatbox/favicon.png"
+                            });
+                        }
                     }
                 });
 
