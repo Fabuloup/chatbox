@@ -77,6 +77,7 @@ function removeScript($texte) {
 
 function prepareImage($texte) {
     // Utilisation d'une expression régulière pour ajouter une image depuis une url
+    $texte = preg_replace('#img\:(data:image\/[a-z]+\;base64\,[\S]+)#is', '<img src="$1" />', $texte);
     return preg_replace('#img\:(https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~\#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~\#?&//=]*))#is', '<img src="$1" />', $texte);
 }
 
@@ -105,7 +106,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message'])) {
         $content .= '<br><img src="' . $base64 . '">';
     }
 
-    if(!empty($content))
+    if(!empty($content) && isset($_POST['message_id']))
+    {
+        // Update the message in the database
+        $stmt = $pdo->prepare("UPDATE message SET content = ? WHERE id = ? AND user_id = ?");
+        $stmt->execute([$content, $_POST['message_id'], $user_id]);
+    }
+    elseif(!empty($content))
     {
         // Insertion du message en base
         $stmt = $pdo->prepare("INSERT INTO message (chatroom_id, user_id, content) VALUES (?, ?, ?)");
@@ -183,11 +190,15 @@ foreach ($messages as $message) {
     {
         $lastMessageId = $message['id'];
     }
-    echo "<div>";
+    echo "<div id='message{$message['id']}'>";
     echo "<div".(($message['pseudo'] == $pseudo) ? " class='self'" : "").">";
-    echo "<strong class='pseudo'>" . htmlspecialchars($message['pseudo']) . "</strong></br> " . $message['content'];
-    echo " </br>";
+    echo "<strong class='pseudo'>" . htmlspecialchars($message['pseudo']) . "</strong><div class='content'>" . $message['content'] . "</div>";
     echo " <em class='timestamp'>(" . $message['timestamp'] . ")</em>";
+
+    // Add an edit button for the user's own messages
+    if ($message['pseudo'] == $pseudo) {
+        echo '<button class="edit-button" data-message-id="' . $message['id'] . '">Edit</button>';
+    }
 
     // Récupérer les réactions pour ce message
     $stmt = $pdo->prepare("
@@ -195,7 +206,7 @@ foreach ($messages as $message) {
         FROM reaction r 
         JOIN user u ON r.user_id = u.id 
         WHERE r.message_id = ? 
-        GROUP BY r.emoji COLLATE utf8mb4_bin
+        GROUP BY r.emoji
     ");
     $stmt->execute([$message['id']]);
     $reactions = $stmt->fetchAll();
@@ -282,7 +293,17 @@ echo "</div>";
                     }
 
                     // Ajout du contenu du message
-                    messageDiv.innerHTML = `<strong class="pseudo">${message.pseudo}</strong></br> ${message.content} <em class="timestamp"></br>(${message.timestamp})</em>`;
+                    messageDiv.innerHTML = `<strong class="pseudo">${message.pseudo}</strong><div class="content">${message.content}</div><em class="timestamp">(${message.timestamp})</em>`;
+
+                    // Ajouter un bouton d'édition si l'utilisateur est l'auteur du message
+                    if (message.pseudo === pseudo) {
+                        const editButton = document.createElement('button');
+                        editButton.textContent = 'Éditer';
+                        editButton.classList.add('edit-button');
+                        editButton.onclick = () => editMessage(message.id); // Fonction pour lancer l'édition
+
+                        messageDiv.appendChild(editButton);
+                    }
 
                     const reactions = message.reactions;
 
@@ -430,6 +451,78 @@ echo "</div>";
         notifCount.innerHTML = '0';
     }
 
+    function editMessage(messageId)
+    {
+        const messageDiv = document.getElementById('message' + messageId);
+        const originalDivContent = messageDiv.innerHTML;
+        const originalContent = messageDiv.querySelector('.content').innerHTML;
+
+        // Preprocess the content by replacing <code> tags with ` and <img> tags with img:source_of_image
+        let processedContent = originalContent;
+
+        // Replace <code> tags with single backticks
+        processedContent = processedContent.replace(/<code>(.*?)<\/code>/g, '`$1`');
+
+        // Replace <img> tags with img:source_of_image
+        processedContent = processedContent.replace(/<img.*?src=["'](.*?)["'].*?>/g, 'img:$1');
+
+        // Replace <br> tags
+        processedContent = processedContent.replace(/<\/?br>/g, '');
+
+        // Clear the message div
+        messageDiv.innerHTML = '';
+
+        // Create the form dynamically
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `?code=${chatroomCode}`;
+
+        // Create the textarea for editing the content
+        const textarea = document.createElement('textarea');
+        textarea.name = 'message';
+        textarea.rows = 4;
+        textarea.cols = 50;
+        textarea.value = processedContent;
+        form.appendChild(textarea);
+
+        // Create the hidden input for message_id
+        const hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.name = 'message_id';
+        hiddenInput.value = messageId;
+        form.appendChild(hiddenInput);
+
+        // Create the save button (submit button)
+        const saveButton = document.createElement('input');
+        saveButton.type = 'submit';
+        saveButton.name = 'edit_message';
+        saveButton.value = 'Enregistrer';
+        form.appendChild(saveButton);
+
+        // Create the cancel button
+        const cancelButton = document.createElement('button');
+        cancelButton.type = 'button';
+        cancelButton.classList.add('cancel-edit');
+        cancelButton.setAttribute('data-message-id', messageId);
+        cancelButton.textContent = 'Annuler';
+
+        // Add the cancel button to the form
+        form.appendChild(cancelButton);
+
+        // Add the form to the message div
+        messageDiv.appendChild(form);
+
+        // Handle cancel button click
+        cancelButton.onclick = function (event) {
+            const messageId = event.target.getAttribute('data-message-id');
+            const messageDiv = document.getElementById('message' + messageId);
+            const originalContent = messageDiv.querySelector('textarea').value;
+
+            // Revert to the original content without saving
+            messageDiv.innerHTML = `${originalDivContent}`;
+        };
+    }
+
     // Fonction pour afficher la popup d'emojis
     function showEmojiPopup(inputElement = null) {
         if(inputElement !== null && inputElement.classList.contains('emoji-input'))
@@ -482,6 +575,11 @@ echo "</div>";
         }
         else if (!emojiPopup.contains(event.target)) {
             hideEmojiPopup();
+        }
+
+        if (event.target.classList.contains('edit-button')) {
+            const messageId = event.target.getAttribute('data-message-id');
+            editMessage(messageId);
         }
     });
 
