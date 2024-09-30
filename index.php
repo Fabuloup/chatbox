@@ -206,7 +206,7 @@ foreach ($messages as $message) {
         FROM reaction r 
         JOIN user u ON r.user_id = u.id 
         WHERE r.message_id = ? 
-        GROUP BY r.emoji
+        GROUP BY r.emoji COLLATE utf8mb4_bin
     ");
     $stmt->execute([$message['id']]);
     $reactions = $stmt->fetchAll();
