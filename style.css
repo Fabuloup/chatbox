@@ -8,6 +8,23 @@ body
 	background-color: #ecf0f1;
 }
 
+#notifications-parent
+{
+	position: absolute;
+	top: 0px;
+	right: 20px;
+}
+
+#notifications-parent > #notifications-container
+{
+	display: none;
+}
+
+#notifications-parent:hover > #notifications-container
+{
+	display: block;
+}
+
 #messages-container
 {
 	max-height: 70vh;

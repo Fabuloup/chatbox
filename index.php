@@ -157,6 +157,12 @@ echo <<<EOL
 EOL;
 
 echo "<h1>Chatbox: $code</h1>";
+echo "<div id='notifications-parent'>";
+echo "<div id='notif-count'><span id='nb-of-notif'>0</span> notifications</div>"
+echo "<button type='button' class='clear-notifications'>Vider</button>";
+echo "<div id='notifications-container'>";
+echo "</div>";
+echo "</div>";
 echo "<div id='messages-container'>";
 $lastMessageId = 0;
 foreach ($messages as $message) {
@@ -229,6 +235,16 @@ echo "</div>";
         [0x2700, 0x27BF]    // Dingbats
     ];
 
+    function truncateMessage(text)
+    {
+        if(text.length > 30)
+        {
+            text = text.substring(0, 27) + "...";
+        }
+
+        return text
+    }
+
     // Fonction pour charger les nouveaux messages via AJAX
     async function loadNewMessages() {
         try {
@@ -237,10 +253,15 @@ echo "</div>";
 
             if (messages.length > 0) {
                 const messagesContainer = document.getElementById('messages-container');
+                const notificationsContainer = document.getElementById('notifications-container');
+                const notificationsCounter = document.getElementById('nb-of-notif');
+                let notificationsCount = parseInt(notificationsCounter.innerText);
 
                 messages.forEach(async message => {
+                    notificationsCount += 1;
                     // Création de l'élément div pour chaque message
                     const messageDiv = document.createElement('div');
+                    messageDiv.setAttribute("id", `message${message.id}`)
 
                     // Aligner à droite si le message est de l'utilisateur courant
                     if (message.pseudo === pseudo) {
@@ -289,7 +310,31 @@ echo "</div>";
 
                     // Mettre à jour le dernier message ID
                     lastMessageId = message.id;
+
+
+                    //---------------
+                    // Notifications
+                    //---------------
+
+                    // On ajoute la notification
+                    const notifDiv = document.createElement('div');
+                    const messageLink = document.createElement('a');
+                    messageLink.title = `<strong>${message.pseudo}</strong> ${truncateMessage(message.content)}`;
+                    messageLink.href = `#message${message.id}`;
+
+                    // On ajoute le lien dans la div
+                    notifDiv.appendChild(messageLink);
+
+                    // Ajouter la notification dans le conteneur
+                    notificationsContainer.appendChild(notifDiv);
+
+                    if(Notification.permission === "granted")
+                    {
+                        new Notification(`${message.pseudo} a envoyé un message.`);
+                    }
                 });
+
+                notificationsCounter.innerHTML = `${notificationsCount}`;
             }
         } catch (error) {
             console.error('Erreur lors du chargement des messages:', error);
@@ -359,9 +404,14 @@ echo "</div>";
         });
     }
 
+    function clearNotifications()
+    {
+        const notifContainer = document.getElementById('notifications-container');
+        notifContainer.innerHTML = '';
+    }
+
     // Fonction pour afficher la popup d'emojis
     function showEmojiPopup(inputElement = null) {
-        console.log(inputElement);
         if(inputElement !== null && inputElement.classList.contains('emoji-input'))
         {
             activeEmojiInput = inputElement;
@@ -405,6 +455,10 @@ echo "</div>";
         else if (!emojiPopup.contains(event.target)) {
             hideEmojiPopup();
         }
+        else if(event.target.classList.contains("clear-notifications"))
+        {
+            clearNotifications();
+        }
     });
 
     // Appelle la fonction toutes les 2 secondes
@@ -416,4 +470,9 @@ echo "</div>";
 
     // Appeler la fonction lorsque la page est chargée
     document.addEventListener('DOMContentLoaded', generateEmojis);
+
+    if(Notification.permission !== "granted" && Notification.permission !== "denied")
+    {
+        Notification.requestPermission();
+    }
 </script>
