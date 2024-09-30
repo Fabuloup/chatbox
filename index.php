@@ -159,7 +159,7 @@ EOL;
 echo "<h1>Chatbox: $code</h1>";
 echo "<div id='notifications-parent'>";
 echo "<div id='notif-count'><span id='nb-of-notif'>0</span> notifications</div>";
-echo "<button type='button' class='clear-notifications'>Vider</button>";
+echo "<button type='button' class='clear-notifications' onclick='clearNotifications()'>Vider</button>";
 echo "<div id='notifications-container'>";
 echo "</div>";
 echo "</div>";
@@ -319,7 +319,7 @@ echo "</div>";
                     // On ajoute la notification
                     const notifDiv = document.createElement('div');
                     const messageLink = document.createElement('a');
-                    messageLink.title = `<strong>${message.pseudo}</strong> ${truncateMessage(message.content)}`;
+                    messageLink.innerHTML = `<strong>${message.pseudo}</strong> ${truncateMessage(message.content)}`;
                     messageLink.href = `#message${message.id}`;
 
                     // On ajoute le lien dans la div
@@ -435,6 +435,14 @@ echo "</div>";
         if (event.target.tagName === 'DIV') return;
         if (activeEmojiInput) {
             activeEmojiInput.value = event.target.textContent; // Remplace l'emoji dans l'input
+
+            const formData = new FormData(activeEmojiInput.parentNode);
+
+            fetch('.?code=<?php echo $code ?>&js', {// &pure
+                method: 'POST',
+                body: formData
+            })
+            .catch(error => console.error('Erreur lors de l\'envoi du message:', error));
         }
         else
         {
@@ -454,10 +462,6 @@ echo "</div>";
         }
         else if (!emojiPopup.contains(event.target)) {
             hideEmojiPopup();
-        }
-        else if(event.target.classList.contains("clear-notifications"))
-        {
-            clearNotifications();
         }
     });
 

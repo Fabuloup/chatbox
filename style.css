@@ -18,11 +18,29 @@ body
 #notifications-parent > #notifications-container
 {
 	display: none;
+	border-style: none;
+	border-radius: 5px;
+	background-color: #fff;
+	padding: 5px 0px;
 }
 
 #notifications-parent:hover > #notifications-container
 {
 	display: block;
+}
+
+#notifications-container > div
+{
+	border-style: none;
+	border-radius: 5px;
+	background-color: #ecf0f1;
+	margin: 5px;
+	padding: 10px 5px;
+}
+
+#notifications-container a
+{
+	text-decoration: None;
 }
 
 #messages-container
