@@ -130,8 +130,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['react'])) {
         $stmt->execute([$message_id, $user_id, $emoji]);
         
         // Redirection après la réaction
-        header("Location: ?code=$code");
-        exit;
+        if(!isset($_GET['js']))
+        {
+            header("Location: ?code=$code");
+            exit;
+        }
+        else
+        {
+            die("Success");
+        }
     }
 }
 
@@ -407,7 +414,9 @@ echo "</div>";
     function clearNotifications()
     {
         const notifContainer = document.getElementById('notifications-container');
+        const notifCount = document.getElementById('nb-of-notif');
         notifContainer.innerHTML = '';
+        notifCount.innerHTML = '0';
     }
 
     // Fonction pour afficher la popup d'emojis
@@ -438,7 +447,7 @@ echo "</div>";
 
             const formData = new FormData(activeEmojiInput.parentNode);
 
-            fetch('.?code=<?php echo $code ?>&js', {// &pure
+            fetch('.?code=<?php echo $code ?>&js', {
                 method: 'POST',
                 body: formData
             })

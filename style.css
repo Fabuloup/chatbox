@@ -11,6 +11,7 @@ body
 #notifications-parent
 {
 	position: absolute;
+	z-index: 90;
 	top: 0px;
 	right: 20px;
 }
