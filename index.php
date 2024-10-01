@@ -134,9 +134,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['react'])) {
 
     if(!empty($emoji))
     {
-        // Insertion de la réaction
-        $stmt = $pdo->prepare("INSERT INTO reaction (message_id, user_id, emoji) VALUES (?, ?, ?)");
+        // On vérifie si la reaction existe déjà
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM reaction WHERE message_id = ? AND user_id = ? AND emoji = ?");
         $stmt->execute([$message_id, $user_id, $emoji]);
+        $count = $stmt->fetchColumn();
+
+        if($count == 0)
+        {
+            // Insertion de la réaction
+            $stmt = $pdo->prepare("INSERT INTO reaction (message_id, user_id, emoji) VALUES (?, ?, ?)");
+            $stmt->execute([$message_id, $user_id, $emoji]);
+        }
+        else
+        {
+            // Suppression de la réaction
+            $stmt = $pdo->prepare("DELETE FROM reaction WHERE message_id = ? AND user_id = ? AND emoji = ?");
+            $stmt->execute([$message_id, $user_id, $emoji]);
+
+            // Fetch the missing reactions (reactions with an ID greater than lastReactionId)
+            $stmt = $pdo->prepare("
+                SELECT r.id, m.id AS message_id, r.emoji, u.pseudo 
+                FROM message m 
+                LEFT JOIN reaction r ON r.message_id = m.id
+                LEFT JOIN user u ON r.user_id = u.id 
+                WHERE m.id = ? 
+                ORDER BY r.id ASC
+            ");
+            $stmt->execute([$message_id]);
+            $reactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            echo json_encode($reactions);
+            die();
+        }
+
         
         // Redirection après la réaction
         if(!isset($_GET['js']))
@@ -181,6 +211,7 @@ echo "</div>";
 echo "</div>";
 echo "<div id='messages-container'>";
 $lastMessageId = 0;
+$lastReactionId = 0;
 foreach ($messages as $message) {
     if($message['id'] > $lastMessageId)
     {
@@ -197,6 +228,7 @@ foreach ($messages as $message) {
     }
 
     // Récupérer les réactions pour ce message
+
     $stmt = $pdo->prepare("
         SELECT r.emoji, GROUP_CONCAT(u.pseudo) AS users, COUNT(r.emoji) AS count 
         FROM reaction r 
@@ -209,7 +241,7 @@ foreach ($messages as $message) {
 
     // Affichage des réactions (emoji + nombre) et utilisateurs au survol
     if (!empty($reactions)) {
-        echo "<div>Réactions : ";
+        echo "<div class='reactions'>Réactions : ";
         foreach ($reactions as $reaction) {
             echo "<span style='margin-right: 10px;' title='" . htmlspecialchars($reaction['users']) . "'>";
             echo htmlspecialchars($reaction['emoji']) . " " . $reaction['count'];
@@ -219,17 +251,21 @@ foreach ($messages as $message) {
     }
 
     // Formulaire pour réagir à un message avec un emoji
-    echo '<form method="POST" action="?code=' . $code . '">';
-    echo '<input type="hidden" name="message_id" value="' . $message['id'] . '">';
-    echo '<input type="text" name="emoji" class="emoji-input" maxlength="1" style="width: 3em;" value="😄" placeholder="😄">';
-    echo '<input type="submit" name="react" value="Réagir">';
-    echo '</form>';
+    echo '<button class="react" data-message-id="' . $message['id'] . '">😄</button>';
 
     echo "</div>";
     echo "</div>";
 }
+
 echo "</div>";
 
+// Get max reaction id
+$stmt = $pdo->prepare("
+    SELECT MAX(r.id) 
+    FROM reaction r
+");
+$stmt->execute();
+$lastReactionId = $stmt->fetchColumn();
 ?>
 
 <!-- Formulaire pour envoyer un message ou une image -->
@@ -240,8 +276,10 @@ echo "</div>";
     <input type="submit" value="Envoyer">
 </form>
 
+<script src="jquery-3.7.1.min.js"></script>
 <script>
     let lastMessageId = <?php echo $lastMessageId; ?>; // L'ID du dernier message chargé
+    let lastReactionId = <?php echo $lastReactionId; ?>; // L'ID de la dernière réaction chargée
     const chatroomId = <?php echo $chatroom_id; ?>; // ID de la chatroom
     const chatroomCode = "<?php echo $code; ?>"; // ID de la chatroom
     const pseudo = "<?php echo $pseudo; ?>"; // Pseudo de l'utilisateur
@@ -304,6 +342,7 @@ echo "</div>";
                     // Afficher les réactions sous chaque message
                     if (reactions.length > 0) {
                         const reactionsDiv = document.createElement('div');
+                        reactionsDiv.classList.add("reactions");
                         reactionsDiv.innerHTML = "Réactions : ";
 
                         reactions.forEach(reaction => {
@@ -318,17 +357,12 @@ echo "</div>";
                     }
 
                     // Formulaire pour réagir à un message avec un emoji
-                    const reactionForm = document.createElement('form');
-                    reactionForm.method = "POST";
-                    reactionForm.action = `?code=${chatroomCode}`;
+                    const reactionBtn = document.createElement('button');
+                    reactionBtn.classList.add('react');
+                    reactionBtn.setAttribute('data-message-id', message.id);
+                    reactionBtn.innerHTML = "😊"
 
-                    reactionForm.innerHTML = `
-                        <input type="hidden" name="message_id" value="${message.id}">
-                        <input type="text" name="emoji" class="emoji-input" maxlength="1" style="width: 3em;" value="😊" placeholder="😊">
-                        <input type="submit" name="react" value="Réagir">
-                    `;
-
-                    messageDiv.appendChild(reactionForm);
+                    messageDiv.appendChild(reactionBtn);
 
                     messageParentDiv = document.createElement("div");
                     messageParentDiv.setAttribute("id", `message${message.id}`)
@@ -393,22 +427,107 @@ echo "</div>";
         }
     }
 
-    document.getElementById('messageInput').addEventListener('keydown', function(event) {
-        // Vérifier si la touche "Entrée" est appuyée
-        if (event.key === 'Enter') {
-            // Si "Maj" + "Entrée", insérer une nouvelle ligne
-            if (event.shiftKey) {
-                // Autoriser le saut de ligne (ne rien faire ici)
-                return;
-            } else {
-                // Sinon, empêcher le comportement par défaut (ajout d'une nouvelle ligne)
-                event.preventDefault();
+    // Function to load new reactions via AJAX
+    async function loadNewReactions() {
+        try {
+            const response = await fetch(`fetch_reactions.php?chatroom_id=${chatroomId}&lastReactionId=${lastReactionId}`);
+            const data = await response.json();
+            const reactions = Array.isArray(data) ? data : [];
 
-                // Envoyer le formulaire ou le message via AJAX
-                sendMessage();
+            if (reactions.length > 0) {
+                updateReactions(reactions);
+
+                // Update lastReactionId to the highest id received
+                lastReactionId = Math.max(...reactions.map(r => r.id));
             }
+        } catch (error) {
+            console.error('Error loading reactions:', error);
         }
-    });
+    }
+
+    function updateReactions(reactions)
+    {
+        if (reactions.length > 0) {
+            // Regroup reactions by message_id
+            const reactionsByMessage = reactions.reduce((acc, reaction) => {
+                if (!acc[reaction.message_id]) {
+                    acc[reaction.message_id] = [];
+                }
+                acc[reaction.message_id].push(reaction);
+                return acc;
+            }, {});
+
+            Object.keys(reactionsByMessage).forEach(messageId => {
+                const messageDiv = document.getElementById('message' + messageId);
+                if (messageDiv) {
+                    let reactionsDiv = messageDiv.querySelector('.reactions');
+                    if (!reactionsDiv) {
+                        // If no reaction container exists, create it
+                        reactionsDiv = document.createElement('div');
+                        reactionsDiv.classList.add('reactions');
+                        messageDiv.firstChild.insertBefore(reactionsDiv, messageDiv.firstChild.querySelector('.react'));
+                    }
+
+                    // Clear the current content of the reactions div
+                    reactionsDiv.innerHTML = 'Réactions : ';
+
+                    // Transformation de la structure
+                    const transformedReactions = {};
+
+                    Object.keys(reactionsByMessage).forEach(messageId => {
+                        const reactions = reactionsByMessage[messageId];
+                        const emojiMap = {};
+
+                        // Grouper les réactions par emoji
+                        reactions.forEach(reaction => {
+                            if(reaction.id === null)
+                            {
+                                return;
+                            }
+
+                            const emoji = reaction.emoji;
+
+                            if (!emojiMap[emoji]) {
+                                // Si cet emoji n'existe pas encore, on l'initialise
+                                emojiMap[emoji] = {
+                                    count: 0,
+                                    users: []
+                                };
+                            }
+
+                            // Incrémenter le compteur et ajouter l'utilisateur
+                            emojiMap[emoji].count += 1;
+                            emojiMap[emoji].users.push(reaction.pseudo);
+                        });
+
+                        if(Object.keys(emojiMap).length == 0)
+                        {
+                            reactionsDiv.remove();
+                        }
+                        else
+                        {
+                            // Construire la structure finale pour ce message_id
+                            transformedReactions[messageId] = Object.keys(emojiMap).map(emoji => ({
+                                emoji: emoji,
+                                count: emojiMap[emoji].count,
+                                users: emojiMap[emoji].users.join(',')
+                            }));
+                        }
+                    });
+
+                    const reactions = transformedReactions[messageId];
+                    reactions.forEach(reaction => {
+                        const reactionSpan = document.createElement('span');
+                        reactionSpan.style.marginRight = "10px";
+                        reactionSpan.title = reaction.users
+                        reactionSpan.innerHTML = `${reaction.emoji} <span class="count">${reaction.count}</span>`;
+                        // Add new reactions for this message
+                        reactionsDiv.appendChild(reactionSpan);
+                    })
+                }
+            });
+        }
+    }
 
     function sendMessage() {
         const messageInput = document.getElementById('messageInput');
@@ -439,7 +558,7 @@ echo "</div>";
     // Pop-up d'emoji
     const emojiPopup = document.getElementById('emojiPopup');
     const emojiList = document.getElementById('emojiList');
-    let activeEmojiInput = null;
+    let reactMessageId = null;
 
     // Fonction pour générer les emojis et les ajouter dans emojiList
     function generateEmojis() {
@@ -542,14 +661,7 @@ echo "</div>";
     }
 
     // Fonction pour afficher la popup d'emojis
-    function showEmojiPopup(inputElement = null) {
-        if(inputElement !== null && inputElement.classList.contains('emoji-input'))
-        {
-            activeEmojiInput = inputElement;
-            const rect = inputElement.getBoundingClientRect();
-            //emojiPopup.style.left = `${rect.left}px`;
-            //emojiPopup.style.top = `${rect.bottom + window.scrollY}px`;
-        }
+    function showEmojiPopup() {
         emojiPopup.style.left = '15vw';
         emojiPopup.style.top = `calc(5vh + ${window.scrollY}px)`;
         emojiPopup.style.display = 'block';
@@ -558,88 +670,128 @@ echo "</div>";
     // Fonction pour fermer la popup d'emojis
     function hideEmojiPopup() {
         emojiPopup.style.display = 'none';
-        activeEmojiInput = null;
+        reactMessageId = null;
     }
 
-    // Quand un emoji est cliqué dans la popup
-    emojiList.addEventListener('click', function(event) {
-        if (event.target.tagName === 'DIV') return;
-        if (activeEmojiInput) {
-            activeEmojiInput.value = event.target.textContent; // Remplace l'emoji dans l'input
+    $(document).ready(function() {
 
-            const formData = new FormData(activeEmojiInput.parentNode);
+        document.getElementById('messageInput').addEventListener('keydown', function(event) {
+            // Vérifier si la touche "Entrée" est appuyée
+            if (event.key === 'Enter') {
+                // Si "Maj" + "Entrée", insérer une nouvelle ligne
+                if (event.shiftKey) {
+                    // Autoriser le saut de ligne (ne rien faire ici)
+                    return;
+                } else {
+                    // Sinon, empêcher le comportement par défaut (ajout d'une nouvelle ligne)
+                    event.preventDefault();
 
-            fetch('.?code=<?php echo $code ?>&js', {
-                method: 'POST',
-                body: formData
-            })
-            .catch(error => console.error('Erreur lors de l\'envoi du message:', error));
-        }
-        else
-        {
-            document.getElementById('messageInput').value += event.target.textContent;
-        }
-        hideEmojiPopup();
-    });
-
-    document.getElementById('messageInput').addEventListener('paste', function(event) {
-        // Prevent the default paste behavior
-        event.preventDefault();
-
-        // Get the clipboard data
-        let clipboardItems = event.clipboardData.items;
-
-        for (let item of clipboardItems) {
-            // Check if the clipboard item is an image
-            if (item.type.indexOf('image') !== -1) {
-                let blob = item.getAsFile(); // Get the image as a blob
-
-                // Create a FileReader to convert the image to Base64
-                let reader = new FileReader();
-                reader.onload = function(e) {
-                    // Insert the Base64 image string into the textarea
-                    document.getElementById('messageInput').value += " img:"+e.target.result+" ";
-                };
-
-                // Read the image file as a Data URL (Base64)
-                reader.readAsDataURL(blob);
+                    // Envoyer le formulaire ou le message via AJAX
+                    sendMessage();
+                }
             }
-            else if (item.kind === 'string') { // If the item is text
-                item.getAsString(function(text) {
-                    // Append the pasted text to the textarea
-                    document.getElementById('messageInput').value += text;
+        });
+
+        // Quand un emoji est cliqué dans la popup
+        emojiList.addEventListener('click', function(event) {
+            if (event.target.tagName === 'DIV') return;
+            if (reactMessageId) {
+                $.ajax({
+                    url: '.?code=<?php echo $code ?>&js',
+                    type: 'POST',
+                    data: {
+                        react: true,
+                        emoji: event.target.textContent,
+                        message_id: reactMessageId
+                    },
+                })
+                .done(function(data) {
+                    try
+                    {
+                        data = JSON.parse(data);
+                        if(Array.isArray(data))
+                        {
+                            updateReactions(data);
+                        }
+                    }
+                    catch(e){
+
+                    }
+                })
+                .fail(function(error) {
+                    console.error('Erreur lors de l\'envoi du message:', error)
                 });
             }
-        }
-    });
-
-    // Ajout de l'événement onClick
-    document.addEventListener('click', function(event) {
-        if (event.target.classList.contains('emoji-input')) {
-            showEmojiPopup(event.target);
-        }
-        else if(event.target.classList.contains("open-emoji-popup"))
-        {
-            showEmojiPopup();
-        }
-        else if (!emojiPopup.contains(event.target)) {
+            else
+            {
+                document.getElementById('messageInput').value += event.target.textContent;
+            }
             hideEmojiPopup();
-        }
+        });
 
-        if (event.target.classList.contains('edit-button')) {
-            const messageId = event.target.getAttribute('data-message-id');
-            editMessage(messageId);
-        }
+        document.getElementById('messageInput').addEventListener('paste', function(event) {
+            // Prevent the default paste behavior
+            event.preventDefault();
+
+            // Get the clipboard data
+            let clipboardItems = event.clipboardData.items;
+
+            for (let item of clipboardItems) {
+                // Check if the clipboard item is an image
+                if (item.type.indexOf('image') !== -1) {
+                    let blob = item.getAsFile(); // Get the image as a blob
+
+                    // Create a FileReader to convert the image to Base64
+                    let reader = new FileReader();
+                    reader.onload = function(e) {
+                        // Insert the Base64 image string into the textarea
+                        document.getElementById('messageInput').value += " img:"+e.target.result+" ";
+                    };
+
+                    // Read the image file as a Data URL (Base64)
+                    reader.readAsDataURL(blob);
+                }
+                else if (item.kind === 'string') { // If the item is text
+                    item.getAsString(function(text) {
+                        // Append the pasted text to the textarea
+                        document.getElementById('messageInput').value += text;
+                    });
+                }
+            }
+        });
+
+        // Ajout de l'événement onClick
+        document.addEventListener('click', function(event) {
+            if (event.target.classList.contains('react')) {
+                reactMessageId = event.target.getAttribute('data-message-id');
+                showEmojiPopup();
+            }
+            else if(event.target.classList.contains("open-emoji-popup"))
+            {
+                reactMessageId = null;
+                showEmojiPopup();
+            }
+            else if (!emojiPopup.contains(event.target)) {
+                hideEmojiPopup();
+            }
+
+            if (event.target.classList.contains('edit-button')) {
+                const messageId = event.target.getAttribute('data-message-id');
+                editMessage(messageId);
+            }
+        });
+
+        // Appelle la fonction toutes les 2 secondes
+        setInterval(loadNewMessages, 2000);
+        setInterval(loadNewReactions, 4000);
+
+        // scroll en bas au chargement
+        var element = document.getElementById("messages-container");
+        element.scrollTop = element.scrollHeight;
+
+        // Appeler la fonction lorsque la page est chargée
+        generateEmojis();
+
     });
-
-    // Appelle la fonction toutes les 2 secondes
-    setInterval(loadNewMessages, 2000);
-
-    // scroll en bas au chargement
-    var element = document.getElementById("messages-container");
-    element.scrollTop = element.scrollHeight;
-
-    // Appeler la fonction lorsque la page est chargée
-    document.addEventListener('DOMContentLoaded', generateEmojis);
 
 </script>

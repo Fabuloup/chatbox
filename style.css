@@ -100,12 +100,17 @@ code
 	width: auto;
 }
 
-#messages-container > div > div > form
+.react
+{
+	display: block;
+}
+
+#messages-container > div > div > .react
 {
 	display: none;
 }
 
-#messages-container > div > div:hover > form
+#messages-container > div > div:hover > .react
 {
 	display: block;
 }
