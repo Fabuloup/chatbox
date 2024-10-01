@@ -15,8 +15,10 @@ code
 {
 	position: absolute;
 	z-index: 90;
-	top: 0px;
+	top: 20px;
 	right: 20px;
+	width: 300px;
+	overflow-wrap: break-word;
 }
 
 #notifications-parent > #notifications-container
@@ -78,6 +80,11 @@ code
 	margin-top: 20px;
 	padding: 5px 10px;
 	background-color: #fff;
+}
+
+#messages-container > div > div.self
+{
+	background-color: #cae5f7;
 }
 
 .self
