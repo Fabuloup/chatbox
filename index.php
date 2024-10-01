@@ -96,9 +96,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message'])) {
         $content = htmlspecialchars($content);
     }
 
-    $content = nl2br($content);
     $content = prepareImage($content);
     $content = prepareCode($content);
+    $content = nl2br($content);
 
     // Si une image est envoyée
     if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
