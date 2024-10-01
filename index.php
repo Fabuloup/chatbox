@@ -300,10 +300,7 @@ echo "</div>";
                         const editButton = document.createElement('button');
                         editButton.textContent = 'Éditer';
                         editButton.classList.add('edit-button');
-                        (function(messageId) {
-                            editButton.onclick = () => editMessage(messageId); // Fonction pour lancer l'édition
-
-                        })(message.id)
+                        editButton.setAttribute('data-message-id', message.id)
 
                         messageDiv.appendChild(editButton);
                     }
@@ -479,9 +476,7 @@ echo "</div>";
 
     function editMessage(messageId)
     {
-        console.log(messageId);
         const messageDiv = document.getElementById('message' + messageId);
-        console.log(messageDiv);
         const originalDivContent = messageDiv.innerHTML;
         const originalContent = messageDiv.querySelector('.content').innerHTML;
 
