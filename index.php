@@ -83,7 +83,7 @@ function prepareImage($texte) {
 
 function prepareCode($texte) {
     // Utilisation d'une expression régulière pour ajouter une image depuis une url
-    $texte = preg_replace('#(```)([a-zA-Z]*)?\n([\s\S]*?)\n\1#is', '<pre><code>$3</code></pre>', $texte);
+    $texte = preg_replace('#(```)([a-zA-Z]*)?\n([\s\S]*?)\n(```)#is', '<pre><code>$3</code></pre>', $texte);
     return preg_replace('#`([^`]+)`#is', '<code>$1</code>', $texte);
 }
 
