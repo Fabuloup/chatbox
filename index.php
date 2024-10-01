@@ -299,7 +299,10 @@ echo "</div>";
                         const editButton = document.createElement('button');
                         editButton.textContent = 'Éditer';
                         editButton.classList.add('edit-button');
-                        editButton.onclick = () => editMessage(message.id); // Fonction pour lancer l'édition
+                        (function(messageId) {
+                            editButton.onclick = () => editMessage(messageId); // Fonction pour lancer l'édition
+
+                        })(message.id)
 
                         messageDiv.appendChild(editButton);
                     }
