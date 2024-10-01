@@ -486,7 +486,7 @@ echo "</div>";
         let processedContent = originalContent;
 
         // Replace <code> tags with single backticks
-        processedContent = processedContent.replace(/<code>(.*?)<\/code>/g, '`$1`');
+        processedContent = processedContent.replace(/<code>([\s\S]*?)<\/code>/g, '`$1`');
 
         // Replace <img> tags with img:source_of_image
         processedContent = processedContent.replace(/<img.*?src=["'](.*?)["'].*?>/g, 'img:$1');
