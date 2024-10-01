@@ -285,7 +285,6 @@ echo "</div>";
                 messages.forEach(async message => {
                     // Création de l'élément div pour chaque message
                     const messageDiv = document.createElement('div');
-                    messageDiv.setAttribute("id", `message${message.id}`)
 
                     // Aligner à droite si le message est de l'utilisateur courant
                     if (message.pseudo === pseudo) {
@@ -337,6 +336,7 @@ echo "</div>";
                     messageDiv.appendChild(reactionForm);
 
                     messageParentDiv = document.createElement("div");
+                    messageParentDiv.setAttribute("id", `message${message.id}`)
                     messageParentDiv.appendChild(messageDiv)
 
                     // Ajouter le message dans le conteneur
