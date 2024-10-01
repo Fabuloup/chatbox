@@ -1,10 +1,5 @@
 <?php
-// Connexion à la base de données
-$dsn = 'mysql:host=localhost;dbname=chatbox';
-$username = 'root';
-$password = '';
-$options = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION];
-$pdo = new PDO($dsn, $username, $password, $options);
+require 'db_connection.php'; // Include your database connection
 
 // Récupère le dernier message ID envoyé par l'AJAX
 $lastMessageId = isset($_GET['lastMessageId']) ? (int)$_GET['lastMessageId'] : 0;
