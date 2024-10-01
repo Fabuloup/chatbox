@@ -479,7 +479,9 @@ echo "</div>";
 
     function editMessage(messageId)
     {
+        console.log(messageId);
         const messageDiv = document.getElementById('message' + messageId);
+        console.log(messageDiv);
         const originalDivContent = messageDiv.innerHTML;
         const originalContent = messageDiv.querySelector('.content').innerHTML;
 
