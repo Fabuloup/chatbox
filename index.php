@@ -366,10 +366,26 @@ echo "</div>";
 
                         if(Notification.permission === "granted")
                         {
-                            new Notification(`${message.pseudo} a envoyé un message.`, {
+                            const notif = new Notification(`${message.pseudo} a envoyé un message.`, {
                                 badge: "https://experiments.fabien-richard.fr/experiments/chatbox/favicon.png",
                                 icon: "https://experiments.fabien-richard.fr/experiments/chatbox/favicon.png"
                             });
+
+                            let ref = `message${message.id}`;
+
+                            // Handle notification click event
+                            notif.onclick = function() {
+                                // Focus on the page/tab
+                                window.focus();
+
+                                // Scroll to the target section
+                                const targetElement = document.getElementById(ref);
+
+                                // Check if target exists and scroll to it
+                                if (targetElement) {
+                                    targetElement.scrollIntoView({ behavior: "smooth" });
+                                }
+                            };
                         }
                     }
                 });
