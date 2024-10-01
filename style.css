@@ -93,7 +93,7 @@ code
 	float: right;
 }
 
-#messages-container > div > div > img
+#messages-container > div > div > .content img
 {
 	max-height: 100px;
 	width: auto;
