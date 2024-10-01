@@ -587,7 +587,38 @@ echo "</div>";
         hideEmojiPopup();
     });
 
-    // Ajout de l'événement au clic sur l'input emoji
+    document.getElementById('messageInput').addEventListener('paste', function(event) {
+        // Prevent the default paste behavior
+        event.preventDefault();
+
+        // Get the clipboard data
+        let clipboardItems = event.clipboardData.items;
+
+        for (let item of clipboardItems) {
+            // Check if the clipboard item is an image
+            if (item.type.indexOf('image') !== -1) {
+                let blob = item.getAsFile(); // Get the image as a blob
+
+                // Create a FileReader to convert the image to Base64
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    // Insert the Base64 image string into the textarea
+                    document.getElementById('messageInput').value += " img:"+e.target.result+" ";
+                };
+
+                // Read the image file as a Data URL (Base64)
+                reader.readAsDataURL(blob);
+            }
+            else if (item.kind === 'string') { // If the item is text
+                item.getAsString(function(text) {
+                    // Append the pasted text to the textarea
+                    document.getElementById('messageInput').value += text;
+                });
+            }
+        }
+    });
+
+    // Ajout de l'événement onClick
     document.addEventListener('click', function(event) {
         if (event.target.classList.contains('emoji-input')) {
             showEmojiPopup(event.target);
