@@ -102,6 +102,16 @@ code
 	width: auto;
 }
 
+#messages-container > div > div > .content .response
+{
+	display: block;
+	background-color: #a1e2d5;
+	text-decoration: none;
+	border-style: none;
+	border-radius: 5px;
+	padding: 2px 5px;
+}
+
 .react
 {
 	display: block;
@@ -116,6 +126,7 @@ div > .message-toolbar > *
 {
 	position: relative;
 	display: none;
+	margin: 0px 2px;
 }
 
 div:hover > .message-toolbar > *
