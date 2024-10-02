@@ -421,6 +421,7 @@ $lastReactionId = $stmt->fetchColumn();
                 });
 
                 notificationsCounter.innerHTML = `${notificationsCount}`;
+                document.title = `(${notificationsCount}) Chatbox : ${chatroomCode}`;
             }
         } catch (error) {
             console.error('Erreur lors du chargement des messages:', error);
@@ -586,6 +587,7 @@ $lastReactionId = $stmt->fetchColumn();
         const notifCount = document.getElementById('nb-of-notif');
         notifContainer.innerHTML = '';
         notifCount.innerHTML = '0';
+        document.title = "Chatbox : "+chatroomCode;
     }
 
     function editMessage(messageId)
