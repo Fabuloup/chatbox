@@ -70,6 +70,10 @@ function removeScript($texte) {
     return preg_replace('#<script(.*?)>(.*?)</script>#is', '', $texte);
 }
 
+function prepareResponse($texte) {
+    return preg_replace("#resp:(message\d+)¤([\s\S]+)¤#is", "<a href='#$1' class='response'>$2</a>", $texte)
+}
+
 function prepareImage($texte) {
     // Utilisation d'une expression régulière pour ajouter une image depuis une url
     $texte = preg_replace('#img\:(data:image\/[a-z]+\;base64\,[\S]+)#is', '<img src="$1" />', $texte);
@@ -91,6 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message'])) {
         $content = htmlspecialchars($content);
     }
 
+    $content = prepareResponse($content);
     $content = prepareImage($content);
     $content = prepareCode($content);
     $content = nl2br($content);
@@ -254,6 +259,7 @@ foreach ($messages as $message) {
 
     echo '<div class="message-toolbar">';
     echo '<button class="react" data-message-id="' . $message['id'] . '">😄</button>';
+    echo '<button class="respond" data-message-id="' . $message['id'] . '">➥</button>';
     echo '</div>';
 
     echo "</div>";
@@ -361,13 +367,20 @@ $lastReactionId = $stmt->fetchColumn();
                     const toolbar = document.createElement('div');
                     toolbar.classList.add('message-toolbar');
 
-                    // Formulaire pour réagir à un message avec un emoji
+                    // Bouton pour réagir à un message avec un emoji
                     const reactionBtn = document.createElement('button');
                     reactionBtn.classList.add('react');
                     reactionBtn.setAttribute('data-message-id', message.id);
                     reactionBtn.innerHTML = "😄"
 
+                    // Bouton pour répondre à un message
+                    const respondBtn = document.createElement('button');
+                    respondBtn.classList.add('respond');
+                    respondBtn.setAttribute('data-message-id', message.id);
+                    respondBtn.innerHTML = "➥"
+
                     toolbar.appendChild(reactionBtn);
+                    toolbar.appendChild(respondBtn);
                     messageDiv.appendChild(toolbar);
 
                     messageParentDiv = document.createElement("div");
@@ -599,14 +612,13 @@ $lastReactionId = $stmt->fetchColumn();
         document.title = "Chatbox : "+chatroomCode;
     }
 
-    function editMessage(messageId)
+    function htmlToMessage(text)
     {
-        const messageDiv = document.getElementById('message' + messageId);
-        const originalDivContent = messageDiv.innerHTML;
-        const originalContent = messageDiv.querySelector('.content').innerHTML;
-
         // Preprocess the content by replacing <code> tags with ` and <img> tags with img:source_of_image
-        let processedContent = originalContent;
+        let processedContent = text;
+
+        // Replace response tags with resp:message_id¤message_content¤
+        processedContent = processedContent.replace(/<a href=[\'\"]\#(message[0-9]+)[\'\"][^\>]*>([\s\S]*?)<\/a>/g, 'resp:$1¤$2¤');
 
         // Replace <code> tags with single backticks
         processedContent = processedContent.replace(/<code>([\s\S]*?)<\/code>/g, '`$1`');
@@ -616,6 +628,41 @@ $lastReactionId = $stmt->fetchColumn();
 
         // Replace <br> tags
         processedContent = processedContent.replace(/<\/?br>/g, '');
+
+        return processedContent;
+    }
+
+    function htmlToResponse(text)
+    {
+        // Preprocess the content by replacing <code> tags with ` and <img> tags with img:source_of_image
+        let processedContent = text;
+
+        // Replace response tags with resp:message_id¤message_content¤
+        processedContent = processedContent.replace(/<a href=[\'\"]\#(message[0-9]+)[\'\"][^\>]*>([\s\S]*?)<\/a>/g, '');
+
+        // Replace <code> tags with single backticks
+        processedContent = processedContent.replace(/<code>([\s\S]*?)<\/code>/g, '`$1`');
+
+        // Replace <img> tags with img:source_of_image
+        processedContent = processedContent.replace(/<img.*?src=["'](.*?)["'].*?>/g, 'IMAGE');
+
+        // Replace <br> tags
+        processedContent = processedContent.replace(/<\/?br>/g, '');
+
+        // Replace line break
+        processedContent = processedContent.replace(/\n/g, ' ');
+
+        return processedContent;
+    }
+
+    function editMessage(messageId)
+    {
+        const messageDiv = document.getElementById('message' + messageId);
+        const originalDivContent = messageDiv.innerHTML;
+        const originalContent = messageDiv.querySelector('.content').innerHTML;
+
+        // Preprocess the content by replacing <code> tags with ` and <img> tags with img:source_of_image
+        let processedContent = htmlToMessage(originalContent);
 
         // Clear the message div
         messageDiv.innerHTML = '';
@@ -789,6 +836,12 @@ $lastReactionId = $stmt->fetchColumn();
             if (event.target.classList.contains('edit-button')) {
                 const messageId = event.target.getAttribute('data-message-id');
                 editMessage(messageId);
+            }
+            else if(event.target.classList.contains('respond'))
+            {
+                const messageId = event.target.getAttribute('data-message-id');
+                const messageContent = $(`#message${messageId} .pseudo`).first().innerText + " : " + htmlToResponse($(`#message${messageId} .content`).first().innerHTML);
+                document.getElementById('messageInput').value = `resp:message${message_id}¤${messageContent}¤\n` + document.getElementById('messageInput').value;
             }
         });
 
