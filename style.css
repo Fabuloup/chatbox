@@ -77,7 +77,7 @@ code
 	box-shadow: inset 3px 3px 5px #c3c3c3,
              inset -3px -3px 5px #fdfdfd;
 	width: fit-content;
-	max-width: 70vw;
+	max-width: 70%;
 	margin: 10px;
 	margin-top: 25px;
 	margin-bottom: 20px;
@@ -100,7 +100,7 @@ code
 {
 	max-height: 200px;
 	width: auto;
-	max-width: 65vw;
+	max-width: 80%;
 }
 
 #messages-container > div > div > .content .response
