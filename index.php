@@ -652,6 +652,11 @@ $lastReactionId = $stmt->fetchColumn();
         // Replace line break
         processedContent = processedContent.replace(/\n/g, ' ');
 
+        if(processedContent.length > 50)
+        {
+            processedContent = processedContent.substring(0, 47) + "...";
+        }
+
         return processedContent;
     }
 
