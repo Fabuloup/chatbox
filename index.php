@@ -219,7 +219,7 @@ foreach ($messages as $message) {
     }
     echo "<div id='message{$message['id']}'>";
     echo "<div".(($message['pseudo'] == $pseudo) ? " class='self'" : "").">";
-    echo "<strong class='pseudo'>" . htmlspecialchars($message['pseudo']) . "</strong><div class='content'>" . $message['content'] . "</div>";
+    echo "<div class='pseudo-container'><strong class='pseudo'>" . htmlspecialchars($message['pseudo']) . "</strong></div><div class='content'>" . $message['content'] . "</div>";
     echo " <em class='timestamp'>(" . $message['timestamp'] . ")</em>";
 
     // Add an edit button for the user's own messages
@@ -325,7 +325,7 @@ $lastReactionId = $stmt->fetchColumn();
                     }
 
                     // Ajout du contenu du message
-                    messageDiv.innerHTML = `<strong class="pseudo">${message.pseudo}</strong><div class="content">${message.content}</div><em class="timestamp">(${message.timestamp})</em>`;
+                    messageDiv.innerHTML = `<div class="pseudo-container"><strong class="pseudo">${message.pseudo}</strong></div><div class="content">${message.content}</div><em class="timestamp">(${message.timestamp})</em>`;
 
                     // Ajouter un bouton d'édition si l'utilisateur est l'auteur du message
                     if (message.pseudo === pseudo) {

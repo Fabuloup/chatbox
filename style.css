@@ -78,7 +78,7 @@ code
 	width: fit-content;
 	max-width: 70vw;
 	margin: 10px;
-	margin-top: 20px;
+	margin-top: 25px;
 	padding: 5px 10px;
 	background-color: #fff;
 }
@@ -115,11 +115,16 @@ code
 	display: block;
 }
 
+.pseudo-container
+{
+	height: 5px;
+}
+
 .pseudo
 {
 	position: relative;
-	top: -20px;
-	font-size: 0.9em;
+	top: -25px;
+	font-size: 1em;
 }
 
 .timestamp
