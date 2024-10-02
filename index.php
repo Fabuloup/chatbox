@@ -71,7 +71,7 @@ function removeScript($texte) {
 }
 
 function prepareResponse($texte) {
-    return preg_replace("#resp:(message\d+)¤([\s\S]+)¤#is", "<a href='#$1' class='response'>$2</a>", $texte)
+    return preg_replace("#resp:(message\d+)¤([\s\S]+)¤#is", "<a href='#$1' class='response'>$2</a>", $texte);
 }
 
 function prepareImage($texte) {
