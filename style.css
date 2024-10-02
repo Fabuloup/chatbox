@@ -112,6 +112,11 @@ code
 	padding: 2px 5px;
 }
 
+#messages-container > div > div.self > .content .response
+{
+	background-color: #fff;
+}
+
 .react
 {
 	display: block;
