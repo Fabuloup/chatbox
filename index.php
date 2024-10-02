@@ -854,6 +854,19 @@ $lastReactionId = $stmt->fetchColumn();
         setInterval(loadNewMessages, 2000);
         setInterval(loadNewReactions, 4000);
 
+        // Attach an event listener to detect scroll on the #messages-container
+        document.getElementById('messages-container').addEventListener('scroll', () => {
+            const container = document.getElementById('messages-container');
+
+            // Check if the user has scrolled to the bottom
+            const isScrolledToBottom = container.scrollHeight - container.scrollTop === container.clientHeight;
+
+            // If the user is at the bottom, call clearNotifications
+            if (isScrolledToBottom) {
+                clearNotifications();
+            }
+        });
+
         // scroll en bas au chargement
         var element = document.getElementById("messages-container");
         element.scrollTop = element.scrollHeight;
