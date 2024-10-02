@@ -421,7 +421,10 @@ $lastReactionId = $stmt->fetchColumn();
                 });
 
                 notificationsCounter.innerHTML = `${notificationsCount}`;
-                document.title = `(${notificationsCount}) Chatbox : ${chatroomCode}`;
+                if(notificationsCount > 0)
+                {
+                    document.title = `(${notificationsCount}) Chatbox : ${chatroomCode}`;
+                }
             }
         } catch (error) {
             console.error('Erreur lors du chargement des messages:', error);
