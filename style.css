@@ -52,6 +52,7 @@ code
 
 #messages-container
 {
+	max-width: 900px;
 	max-height: 70vh;
 	overflow-y: scroll;
 	border-style: dashed;
@@ -79,6 +80,7 @@ code
 	max-width: 70vw;
 	margin: 10px;
 	margin-top: 25px;
+	margin-bottom: 20px;
 	padding: 5px 10px;
 	background-color: #fff;
 }
@@ -105,12 +107,18 @@ code
 	display: block;
 }
 
-#messages-container > div > div > .react
+.message-toolbar
 {
+	height: 0px;
+}
+
+div > .message-toolbar > *
+{
+	position: relative;
 	display: none;
 }
 
-#messages-container > div > div:hover > .react
+div:hover > .message-toolbar > *
 {
 	display: block;
 }

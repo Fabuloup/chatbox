@@ -251,7 +251,10 @@ foreach ($messages as $message) {
     }
 
     // Formulaire pour réagir à un message avec un emoji
+
+    echo '<div class="message-toolbar">';
     echo '<button class="react" data-message-id="' . $message['id'] . '">😄</button>';
+    echo '</div>';
 
     echo "</div>";
     echo "</div>";
@@ -355,6 +358,8 @@ $lastReactionId = $stmt->fetchColumn();
 
                         messageDiv.appendChild(reactionsDiv);
                     }
+                    const toolbar = document.createElement('div');
+                    toolbar.classList.add('message-toolbar');
 
                     // Formulaire pour réagir à un message avec un emoji
                     const reactionBtn = document.createElement('button');
@@ -362,7 +367,8 @@ $lastReactionId = $stmt->fetchColumn();
                     reactionBtn.setAttribute('data-message-id', message.id);
                     reactionBtn.innerHTML = "😊"
 
-                    messageDiv.appendChild(reactionBtn);
+                    toolbar.appendChild(reactionBtn);
+                    messageDiv.appendChild(toolbar);
 
                     messageParentDiv = document.createElement("div");
                     messageParentDiv.setAttribute("id", `message${message.id}`)
