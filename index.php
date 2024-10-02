@@ -475,7 +475,7 @@ $lastReactionId = $stmt->fetchColumn();
                         // If no reaction container exists, create it
                         reactionsDiv = document.createElement('div');
                         reactionsDiv.classList.add('reactions');
-                        messageDiv.firstChild.insertBefore(reactionsDiv, messageDiv.firstChild.querySelector('.react'));
+                        messageDiv.firstChild.insertBefore(reactionsDiv, messageDiv.firstChild.querySelector('.message-toolbar'));
                     }
 
                     // Clear the current content of the reactions div
