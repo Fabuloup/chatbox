@@ -191,6 +191,7 @@ $stmt = $pdo->prepare("SELECT m.id, m.content, m.timestamp, u.pseudo FROM messag
 $stmt->execute([$chatroom_id]);
 $messages = $stmt->fetchAll();
 
+echo "<!DOCTYPE html>";
 echo "<head>";
 echo "<link rel='stylesheet' href='style.css'>";
 echo "<link rel='icon' type='image/png' href='favicon.png' />";
