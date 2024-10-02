@@ -840,7 +840,7 @@ $lastReactionId = $stmt->fetchColumn();
             else if(event.target.classList.contains('respond'))
             {
                 const messageId = event.target.getAttribute('data-message-id');
-                const messageContent = $(`#message${messageId} .pseudo`).first().innerText + " : " + htmlToResponse($(`#message${messageId} .content`).first().innerHTML);
+                const messageContent = $(`#message${messageId} .pseudo`).first().text() + " : " + htmlToResponse($(`#message${messageId} .content`).first().html());
                 document.getElementById('messageInput').value = `resp:message${message_id}¤${messageContent}¤\n` + document.getElementById('messageInput').value;
             }
         });

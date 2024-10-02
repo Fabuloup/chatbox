@@ -120,7 +120,7 @@ div > .message-toolbar > *
 
 div:hover > .message-toolbar > *
 {
-	display: block;
+	display: inline-block;
 }
 
 .pseudo-container
