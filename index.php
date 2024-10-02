@@ -762,7 +762,7 @@ $lastReactionId = $stmt->fetchColumn();
                     // Read the image file as a Data URL (Base64)
                     reader.readAsDataURL(blob);
                 }
-                else if (item.kind === 'string') { // If the item is text
+                else if (item.kind === 'string' && item.type === 'text/plain') { // If the item is text
                     item.getAsString(function(text) {
                         // Append the pasted text to the textarea
                         document.getElementById('messageInput').value += text;
