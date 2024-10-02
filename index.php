@@ -365,7 +365,7 @@ $lastReactionId = $stmt->fetchColumn();
                     const reactionBtn = document.createElement('button');
                     reactionBtn.classList.add('react');
                     reactionBtn.setAttribute('data-message-id', message.id);
-                    reactionBtn.innerHTML = "😊"
+                    reactionBtn.innerHTML = "😄"
 
                     toolbar.appendChild(reactionBtn);
                     messageDiv.appendChild(toolbar);
