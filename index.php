@@ -186,6 +186,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['react'])) {
     }
 }
 
+// Epingler un message
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pin'])) {
+    $message_id = $_POST['message_id'];
+
+    // On épingle le message
+    $stmt = $pdo->prepare("UPDATE message SET pinned = (SELECT 1 ^ pinned FROM message WHERE message_id = ?) WHERE message_id = ?");
+    $stmt->execute([$message_id, $message_id]);
+    $count = $stmt->fetchColumn();
+    
+    // Redirection après la réaction
+    if(!isset($_GET['js']))
+    {
+        header("Location: ?code=$code");
+        exit;
+    }
+    else
+    {
+        die("Success");
+    }
+}
+
 // Affichage des messages de la chatroom
 $stmt = $pdo->prepare("SELECT m.id, m.content, m.timestamp, u.pseudo FROM message m JOIN user u ON m.user_id = u.id WHERE m.chatroom_id = ? ORDER BY m.timestamp ASC");
 $stmt->execute([$chatroom_id]);
@@ -261,6 +282,7 @@ foreach ($messages as $message) {
     echo '<div class="message-toolbar">';
     echo '<button class="react" data-message-id="' . $message['id'] . '">😄</button>';
     echo '<button class="respond" data-message-id="' . $message['id'] . '">➥</button>';
+    echo '<button class="pin" data-message-id="' . $message['id'] . '">📌</button>';
     echo '</div>';
 
     echo "</div>";
@@ -380,8 +402,15 @@ $lastReactionId = $stmt->fetchColumn();
                     respondBtn.setAttribute('data-message-id', message.id);
                     respondBtn.innerHTML = "➥"
 
+                    // Bouton pour épingler un message
+                    const pinBtn = document.createElement('button');
+                    pinBtn.classList.add('pin');
+                    pinBtn.setAttribute('data-message-id', message.id);
+                    pinBtn.innerHTML = "📌"
+
                     toolbar.appendChild(reactionBtn);
                     toolbar.appendChild(respondBtn);
+                    toolbar.appendChild(pinBtn);
                     messageDiv.appendChild(toolbar);
 
                     messageParentDiv = document.createElement("div");
@@ -849,6 +878,31 @@ $lastReactionId = $stmt->fetchColumn();
                 const messageContent = $(`#message${messageId} .pseudo`).first().text() + " : " + htmlToResponse($(`#message${messageId} .content`).first().html());
                 document.getElementById('messageInput').value = `resp:message${messageId}¤${messageContent}¤\n` + document.getElementById('messageInput').value;
                 document.getElementById('messageInput').focus();
+            }
+            else if(event.target.classList.contains('pin'))
+            {
+                const messageId = event.target.getAttribute('data-message-id');
+                $.ajax({
+                    url: '.?code=<?php echo $code ?>&js',
+                    type: 'POST',
+                    data: {
+                        pin: true,
+                        message_id: messageId
+                    },
+                })
+                .done(function(data) {
+                    try
+                    {
+                        // Faire une méthode pour charger les épinglés
+                        updatePin();
+                    }
+                    catch(e){
+
+                    }
+                })
+                .fail(function(error) {
+                    console.error('Erreur lors de l\'envoi du message:', error)
+                });
             }
         });
 
