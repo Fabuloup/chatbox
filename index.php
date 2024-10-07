@@ -229,7 +229,15 @@ echo <<<EOL
 </div>
 EOL;
 
+echo "<div>";
 echo "<h1>Chatbox: $code</h1>";
+echo <<<EOL
+    <div class="theme-switcher-frame">
+        <div class="theme-switcher-button">
+        </div
+    </div>
+EOL;
+echo "</div>";
 echo "<div id='notifications-parent'>";
 echo "<div id='notif-count'><span id='nb-of-notif'>0</span> notifications</div>";
 echo "<button type='button' class='clear-notifications' onclick='clearNotifications()'>Vider</button>";
@@ -935,6 +943,20 @@ $lastReactionId = $stmt->fetchColumn();
                     console.error('Erreur lors de l\'envoi du message:', error)
                 });
             }
+            else if(event.target.classList.contains('theme-switcher-frame'))
+            {
+                const body = document.body;
+                if(body.classList.contains('night'))
+                {
+                    body.classList.add('night');
+                    localStorage.setItem("night", "true");
+                }
+                else
+                {
+                    body.classList.remove('night');
+                    localStorage.removeItem("night");
+                }
+            }
         });
 
         // Appelle la fonction toutes les 2 secondes
@@ -961,6 +983,13 @@ $lastReactionId = $stmt->fetchColumn();
 
         // Appeler la fonction lorsque la page est chargée
         generateEmojis();
+
+        // Set night mode if required
+        if(localStorage.getItem("night") === true)
+        {
+            const body = document.body;
+            body.classList.add('night');
+        }
 
     });
 
