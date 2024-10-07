@@ -870,6 +870,11 @@ $lastReactionId = $stmt->fetchColumn();
             let clipboardItems = event.clipboardData.items;
 
             for (let item of clipboardItems) {
+                const messageInput = document.getElementById('messageInput');
+                // Get the current cursor position
+                const startPos = messageInput.selectionStart;
+                const endPos = messageInput.selectionEnd;
+
                 // Check if the clipboard item is an image
                 if (item.type.indexOf('image') !== -1) {
                     let blob = item.getAsFile(); // Get the image as a blob
@@ -877,8 +882,19 @@ $lastReactionId = $stmt->fetchColumn();
                     // Create a FileReader to convert the image to Base64
                     let reader = new FileReader();
                     reader.onload = function(e) {
+                        let imgText = "img:"+e.target.result;
+                        if(startPos > 0)
+                        {
+                            imgText = "\n"+imgText;
+                        }
+
+                        if(endPos < messageInput.value.length)
+                        {
+                            imgText = imgText+"\n";
+                        }
                         // Insert the Base64 image string into the textarea
-                        document.getElementById('messageInput').value += " img:"+e.target.result+" ";
+                        let originalText = messageInput.value;
+                        messageInput.value = originalText.substring(0, startPos) + imgText + originalText.substring(endPos);
                     };
 
                     // Read the image file as a Data URL (Base64)
@@ -887,7 +903,8 @@ $lastReactionId = $stmt->fetchColumn();
                 else if (item.kind === 'string' && item.type === 'text/plain') { // If the item is text
                     item.getAsString(function(text) {
                         // Append the pasted text to the textarea
-                        document.getElementById('messageInput').value += text;
+                        let originalText = messageInput.value;
+                        messageInput.value = originalText.substring(0, startPos) + text + originalText.substring(endPos);
                     });
                 }
             }
