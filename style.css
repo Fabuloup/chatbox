@@ -90,6 +90,11 @@ code
 	margin-bottom: 2px;
 }
 
+#pinned-messages-container > a
+{
+	content: "📌";
+}
+
 #messages-container
 {
 	max-width: 900px;
