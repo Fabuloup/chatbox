@@ -18,6 +18,14 @@ code
 	flex-direction: row;
 }
 
+
+#pinned-messages-container
+{
+	padding: 5px 10px;
+	max-height: 70vh;
+	overflow-y: scroll;
+}
+
 #notifications-parent
 {
 	position: absolute;
@@ -54,6 +62,14 @@ code
 #notifications-container a, #pinned-messages-container a
 {
 	text-decoration: None;
+}
+
+#pinned-messages-container a
+{
+	background-color: #a1e2d5;
+	padding: 5px 10px;
+	border-style: none;
+	border-radius: 5px;
 }
 
 #messages-container
