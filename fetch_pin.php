@@ -12,7 +12,7 @@ $stmt = $pdo->prepare("
     WHERE m.chatroom_id = ? AND m.pinned = 1 
     ORDER BY m.timestamp ASC
 ");
-$stmt->execute([$chatroomId, $lastMessageId]);
+$stmt->execute([$chatroomId]);
 $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Renvoie les messages en JSON
