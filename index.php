@@ -989,7 +989,7 @@ $lastReactionId = $stmt->fetchColumn();
         loadPin();
 
         // Set night mode if required
-        if(localStorage.getItem(appPrefix+"-night") === true)
+        if(localStorage.getItem(appPrefix+"-night") === "true")
         {
             const body = document.body;
             body.classList.add('night');
