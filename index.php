@@ -187,17 +187,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['react'])) {
 }
 
 // Epingler un message
-if($user_id == 1)
-{
-    print_r($_POST);
-    print_r($_GET);
-}
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pin'])) {
     $message_id = $_POST['message_id'];
 
     // On épingle le message
-    $stmt = $pdo->prepare("UPDATE message SET pinned = (SELECT 1 ^ pinned FROM message WHERE message_id = ?) WHERE message_id = ?");
-    $stmt->execute([$message_id, $message_id]);
+    $stmt = $pdo->prepare("UPDATE message m1 JOIN message m2 ON m1.id = m2.id SET m1.pinned = 1 ^ m2.pinned WHERE m1.id = ?");
+    $stmt->execute([$message_id]);
     $count = $stmt->fetchColumn();
     
     // Redirection après la réaction
