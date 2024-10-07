@@ -187,6 +187,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['react'])) {
 }
 
 // Epingler un message
+if($user_id == 1)
+{
+    print_r($_POST);
+    print_r($_GET);
+}
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pin'])) {
     $message_id = $_POST['message_id'];
 
