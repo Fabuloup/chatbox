@@ -45,7 +45,7 @@ code
 	padding: 10px 5px;
 }
 
-#notifications-container a
+#notifications-container a, #pinned-messages-container a
 {
 	text-decoration: None;
 }

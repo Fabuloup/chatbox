@@ -13,7 +13,7 @@ CREATE TABLE message (
     chatroom_id INT NOT NULL,
     user_id INT NOT NULL,
     content LONGTEXT NOT NULL,
-    pinned BIT NOT NULL DEFAULT 0,
+    pinned BIT(1) NOT NULL DEFAULT 0,
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (chatroom_id) REFERENCES chatroom(id),
     FOREIGN KEY (user_id) REFERENCES user(id)

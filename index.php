@@ -236,6 +236,7 @@ echo "<button type='button' class='clear-notifications' onclick='clearNotificati
 echo "<div id='notifications-container'>";
 echo "</div>";
 echo "</div>";
+echo "<div class='row'>";
 echo "<div id='messages-container'>";
 $lastMessageId = 0;
 $lastReactionId = 0;
@@ -289,6 +290,9 @@ foreach ($messages as $message) {
     echo "</div>";
 }
 
+echo "</div>";
+echo "<div id='pinned-messages-container'>";
+echo "</div>";
 echo "</div>";
 
 // Get max reaction id
@@ -474,6 +478,34 @@ $lastReactionId = $stmt->fetchColumn();
                 {
                     document.title = `(${notificationsCount}) Chatbox : ${chatroomCode}`;
                 }
+            }
+        } catch (error) {
+            console.error('Erreur lors du chargement des messages:', error);
+        }
+    }
+
+    // Fonction pour charger les nouveaux messages via AJAX
+    async function loadPin() {
+        try {
+            const response = await fetch(`fetch_pin.php?chatroom_id=${chatroomId}`);
+            const messages = await response.json();
+
+            if (messages.length > 0) {
+                const pinContainer = document.getElementById('pinned-messages-container');
+
+                pinContainer.innerHTML = "";
+
+                messages.forEach(async message => {
+                    // Création de la balise pour chaque message
+                    const messageLink = document.createElement('a');
+
+                    // Ajout du contenu du message
+                    messageLink.innerHTML = `<strong>${message.pseudo}</strong> ${truncateMessage(message.content)}`;
+                    messageLink.href = `#message${message.id}`;
+
+                    // Ajouter le message dans le conteneur
+                    pinContainer.appendChild(messageLink);
+                });
             }
         } catch (error) {
             console.error('Erreur lors du chargement des messages:', error);
@@ -894,7 +926,7 @@ $lastReactionId = $stmt->fetchColumn();
                     try
                     {
                         // Faire une méthode pour charger les épinglés
-                        updatePin();
+                        loadPin();
                     }
                     catch(e){
 
@@ -909,6 +941,7 @@ $lastReactionId = $stmt->fetchColumn();
         // Appelle la fonction toutes les 2 secondes
         setInterval(loadNewMessages, 2000);
         setInterval(loadNewReactions, 4000);
+        setInterval(loadPin, 10000);
 
         // Attach an event listener to detect scroll on the #messages-container
         document.getElementById('messages-container').addEventListener('scroll', () => {
