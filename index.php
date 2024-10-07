@@ -508,7 +508,7 @@ $lastReactionId = $stmt->fetchColumn();
                     const messageLink = document.createElement('a');
 
                     // Ajout du contenu du message
-                    messageLink.innerHTML = `<strong>${message.pseudo}</strong> ${truncateMessage(message.content, 50)}`;
+                    messageLink.innerHTML = `<strong>${message.pseudo}</strong> ${truncateMessage(message.content, 70)}`;
                     messageLink.href = `#message${message.id}`;
 
                     // Ajouter le message dans le conteneur
