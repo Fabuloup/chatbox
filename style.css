@@ -90,7 +90,7 @@ code
 	margin-bottom: 2px;
 }
 
-#pinned-messages-container > a
+#pinned-messages-container > a::before
 {
 	content: "📌";
 }
