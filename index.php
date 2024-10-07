@@ -338,11 +338,11 @@ $lastReactionId = $stmt->fetchColumn();
         [0x2700, 0x27BF]    // Dingbats
     ];
 
-    function truncateMessage(text)
+    function truncateMessage(text, size = 30)
     {
-        if(text.length > 30)
+        if(text.length > size)
         {
-            text = text.substring(0, 27) + "...";
+            text = text.substring(0, size-3) + "...";
         }
 
         return text
@@ -508,7 +508,7 @@ $lastReactionId = $stmt->fetchColumn();
                     const messageLink = document.createElement('a');
 
                     // Ajout du contenu du message
-                    messageLink.innerHTML = `<strong>${message.pseudo}</strong> ${truncateMessage(message.content)}`;
+                    messageLink.innerHTML = `<strong>${message.pseudo}</strong> ${truncateMessage(message.content, 50)}`;
                     messageLink.href = `#message${message.id}`;
 
                     // Ajouter le message dans le conteneur
