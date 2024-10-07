@@ -984,6 +984,9 @@ $lastReactionId = $stmt->fetchColumn();
         // Appeler la fonction lorsque la page est chargée
         generateEmojis();
 
+        // Load pinned messages
+        loadPin();
+
         // Set night mode if required
         if(localStorage.getItem("night") === true)
         {
