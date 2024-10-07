@@ -322,6 +322,7 @@ $lastReactionId = $stmt->fetchColumn();
 
 <script src="jquery-3.7.1.min.js"></script>
 <script>
+    const appPrefix = "chatbox";
     let lastMessageId = <?php echo $lastMessageId; ?>; // L'ID du dernier message chargé
     let lastReactionId = <?php echo $lastReactionId; ?>; // L'ID de la dernière réaction chargée
     const chatroomId = <?php echo $chatroom_id; ?>; // ID de la chatroom
@@ -948,13 +949,13 @@ $lastReactionId = $stmt->fetchColumn();
                 const body = document.body;
                 if(body.classList.contains('night'))
                 {
-                    body.classList.add('night');
-                    localStorage.setItem("night", "true");
+                    body.classList.remove('night');
+                    localStorage.removeItem(appPrefix+"-night");
                 }
                 else
                 {
-                    body.classList.remove('night');
-                    localStorage.removeItem("night");
+                    body.classList.add('night');
+                    localStorage.setItem(appPrefix+"-night", "true");
                 }
             }
         });
@@ -988,7 +989,7 @@ $lastReactionId = $stmt->fetchColumn();
         loadPin();
 
         // Set night mode if required
-        if(localStorage.getItem("night") === true)
+        if(localStorage.getItem(appPrefix+"-night") === true)
         {
             const body = document.body;
             body.classList.add('night');
