@@ -489,11 +489,10 @@ $lastReactionId = $stmt->fetchColumn();
         try {
             const response = await fetch(`fetch_pin.php?chatroom_id=${chatroomId}`);
             const messages = await response.json();
+            const pinContainer = document.getElementById('pinned-messages-container');
+            pinContainer.innerHTML = "";
 
             if (messages.length > 0) {
-                const pinContainer = document.getElementById('pinned-messages-container');
-
-                pinContainer.innerHTML = "";
 
                 messages.forEach(async message => {
                     // Création de la balise pour chaque message
