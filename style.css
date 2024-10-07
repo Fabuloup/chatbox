@@ -82,10 +82,12 @@ code
 
 #pinned-messages-container a
 {
+	display: block;
 	background-color: #a1e2d5;
 	padding: 5px 10px;
 	border-style: none;
 	border-radius: 5px;
+	margin-bottom: 2px;
 }
 
 #messages-container
@@ -126,8 +128,7 @@ code
 .night #messages-container > div > div
 {
 	background-color: #7f8c8d;
-	box-shadow: inset -3px -3px 5px #020202,
-				inset 3px 3px 5px #4c4c4c;
+	box-shadow: none;
 }
 
 #messages-container > div > div.self
