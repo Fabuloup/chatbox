@@ -857,7 +857,12 @@ $lastReactionId = $stmt->fetchColumn();
             }
             else
             {
-                document.getElementById('messageInput').value += event.target.textContent;
+                const messageInput = document.getElementById('messageInput');
+                // Get the current cursor position
+                const startPos = messageInput.selectionStart;
+                const endPos = messageInput.selectionEnd;
+                let originalText = messageInput.value;
+                messageInput.value = originalText.substring(0, startPos) + event.target.textContent + originalText.substring(endPos);
             }
             hideEmojiPopup();
         });
