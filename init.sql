@@ -15,6 +15,7 @@ CREATE TABLE message (
     content LONGTEXT NOT NULL,
     pinned BIT(1) NOT NULL DEFAULT 0,
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (chatroom_id) REFERENCES chatroom(id),
     FOREIGN KEY (user_id) REFERENCES user(id)
 );
