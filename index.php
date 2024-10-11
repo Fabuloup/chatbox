@@ -495,8 +495,8 @@ $lastReactionId = $stmt->fetchColumn();
                     document.title = `(${notificationsCount}) Chatbox : ${chatroomCode}`;
                 }
 
-                isLoadingMessages = false;
             }
+            isLoadingMessages = false;
         } catch (error) {
             console.error('Erreur lors du chargement des messages:', error);
             isLoadingMessages = false;
