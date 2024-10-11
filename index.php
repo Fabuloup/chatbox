@@ -208,8 +208,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pin'])) {
 }
 
 // Affichage des messages de la chatroom
-$stmt = $pdo->prepare("SELECT m.id, m.content, m.timestamp, u.pseudo FROM message m JOIN user u ON m.user_id = u.id WHERE m.chatroom_id = ? ORDER BY m.timestamp ASC");
-$stmt->execute([$chatroom_id]);
+$stmt = $pdo->prepare("
+SELECT m.id, m.content, m.timestamp, u.pseudo
+FROM message m
+JOIN user u ON m.user_id = u.id
+WHERE m.chatroom_id = ?
+AND m.pinned = 1
+
+UNION ALL
+
+-- Surrounding Messages
+SELECT m.id, m.content, m.timestamp, u.pseudo
+FROM message m
+JOIN user u ON m.user_id = u.id
+WHERE m.chatroom_id = ?
+AND m.id IN (
+    -- Récupère les 10 messages avant et après les messages épinglés
+    SELECT surrounding.id
+    FROM (
+        SELECT m1.id
+        FROM message m1
+        WHERE m1.chatroom_id = ?
+    ) AS surrounding
+    JOIN (
+        SELECT m2.id AS pinned_id
+        FROM message m2
+        WHERE m2.chatroom_id = ?
+        AND m2.pinned = 1
+    ) AS pinned
+    ON surrounding.id BETWEEN pinned.pinned_id - 10 AND pinned.pinned_id + 10
+)
+
+UNION ALL
+
+-- Last 800 Messages
+SELECT id, content, timestamp, pseudo
+FROM (SELECT m.id, m.content, m.timestamp, u.pseudo
+FROM message m
+JOIN user u ON m.user_id = u.id
+WHERE m.chatroom_id = ?
+ORDER BY m.timestamp DESC
+LIMIT 800) as LastMessages
+
+-- Final ORDER BY for the combined results
+ORDER BY timestamp, id ASC
+");
+$stmt->execute([$chatroom_id, $chatroom_id, $chatroom_id, $chatroom_id, $chatroom_id]);
 $messages = $stmt->fetchAll();
 
 echo "<!DOCTYPE html>";
