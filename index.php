@@ -246,7 +246,7 @@ FROM (
 -- Final ORDER BY for the combined results
 ORDER BY timestamp, id ASC
 ");
-$stmt->execute([$chatroom_id, $chatroom_id, $chatroom_id, $chatroom_id, $chatroom_id]);
+$stmt->execute([$chatroom_id, $chatroom_id, $chatroom_id, $chatroom_id]);
 $messages = $stmt->fetchAll();
 
 echo "<!DOCTYPE html>";
