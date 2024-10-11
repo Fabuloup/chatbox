@@ -349,8 +349,15 @@ $lastReactionId = $stmt->fetchColumn();
     }
 
     // Fonction pour charger les nouveaux messages via AJAX
+    var isLoadingMessages = false;
     async function loadNewMessages() {
         try {
+
+            if(isLoadingMessages)
+            {
+                return;
+            }
+            isLoadingMessages = true;
             const response = await fetch(`fetch_messages.php?chatroom_id=${chatroomId}&lastMessageId=${lastMessageId}`);
             const messages = await response.json();
 
@@ -487,9 +494,12 @@ $lastReactionId = $stmt->fetchColumn();
                 {
                     document.title = `(${notificationsCount}) Chatbox : ${chatroomCode}`;
                 }
+
+                isLoadingMessages = false;
             }
         } catch (error) {
             console.error('Erreur lors du chargement des messages:', error);
+            isLoadingMessages = false;
         }
     }
 
@@ -622,7 +632,14 @@ $lastReactionId = $stmt->fetchColumn();
         }
     }
 
+
+    var isSendingMessages = false;
     function sendMessage() {
+        if(isSendingMessages)
+        {
+            return;
+        }
+        isSendingMessages = true;
         const messageInput = document.getElementById('messageInput');
         const message = messageInput.value.trim();
 
@@ -643,6 +660,7 @@ $lastReactionId = $stmt->fetchColumn();
             .finally(() => {
                 // Effacer le champ de saisie après l'envoi
                 document.getElementById('messageForm').reset();
+                isSendingMessages = false;
             })
             .catch(error => console.error('Erreur lors de l\'envoi du message:', error));
         }
