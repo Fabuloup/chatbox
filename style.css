@@ -303,3 +303,32 @@ div:hover > .message-toolbar > *
 .night .theme-switcher-button {
 	float: right;
 }
+
+@media only screen and (max-width: 600px) {
+
+	body
+	{
+		font-size: 1.6rem;
+	}
+
+	#pinned-messages-container
+	{
+		display: none;
+	}
+
+	#messages-container
+	{
+		max-width: none;
+	}
+
+	#messages-container > div > div
+	{
+		max-width: 80%;
+	}
+
+	.pseudo
+	{
+		top: -35px;
+	}
+
+}
