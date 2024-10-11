@@ -208,40 +208,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pin'])) {
 }
 
 // Affichage des messages de la chatroom
-$stmt = $pdo->prepare("WITH PinnedMessages AS (
-        SELECT m.id, m.timestamp
-        FROM message m
-        WHERE m.chatroom_id = 1
-        AND m.pinned = 1
-    ),
-    SurroundingMessages AS (
-        -- Get the 10 preceding and 10 following messages around each pinned message
-        SELECT m3.id
-        FROM message m3
-        JOIN PinnedMessages pm ON m3.chatroom_id = 1
-        WHERE m3.timestamp BETWEEN 
-              (pm.timestamp - INTERVAL 30*60 SECOND) 
-              AND 
-              (pm.timestamp + INTERVAL 30*60 SECOND)
-        OR m3.id = pm.id
-        ORDER BY m3.timestamp
-        LIMIT 20
-    ),
-    LastMessages AS (
-        SELECT m2.id
-        FROM message m2
-        WHERE m2.chatroom_id = 1
-        ORDER BY m2.id DESC
-        LIMIT 800
-    )
-    SELECT m.id, m.content, m.timestamp, u.pseudo
-    FROM message m
-    JOIN user u ON m.user_id = u.id
-    WHERE m.chatroom_id = 1
-    AND (m.id IN (SELECT id FROM LastMessages) 
-        OR m.id IN (SELECT id FROM SurroundingMessages))
-    ORDER BY m.timestamp ASC
-");
+$stmt = $pdo->prepare("SELECT m.id, m.content, m.timestamp, u.pseudo FROM message m JOIN user u ON m.user_id = u.id WHERE m.chatroom_id = ? ORDER BY m.timestamp ASC");
 $stmt->execute([$chatroom_id, $chatroom_id, $chatroom_id, $chatroom_id]);
 $messages = $stmt->fetchAll();
 
