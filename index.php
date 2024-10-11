@@ -242,7 +242,7 @@ FROM (
     WHERE m.chatroom_id = ?
     ORDER BY m.timestamp DESC
     LIMIT 800) as LastMessages
-    )
+    ) AS allMessages
 -- Final ORDER BY for the combined results
 ORDER BY timestamp, id ASC
 ");
