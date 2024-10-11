@@ -209,7 +209,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pin'])) {
 
 // Affichage des messages de la chatroom
 $stmt = $pdo->prepare("SELECT m.id, m.content, m.timestamp, u.pseudo FROM message m JOIN user u ON m.user_id = u.id WHERE m.chatroom_id = ? ORDER BY m.timestamp ASC");
-$stmt->execute([$chatroom_id, $chatroom_id, $chatroom_id, $chatroom_id]);
+$stmt->execute([$chatroom_id]);
 $messages = $stmt->fetchAll();
 
 echo "<!DOCTYPE html>";
