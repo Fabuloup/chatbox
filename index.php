@@ -271,7 +271,7 @@ echo "<h1>Chatbox: $code</h1>";
 echo <<<EOL
     <div class="theme-switcher-frame">
         <div class="theme-switcher-button">
-        </div
+        </div>
     </div>
 EOL;
 echo "</div>";
