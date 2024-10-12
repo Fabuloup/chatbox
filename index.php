@@ -360,8 +360,8 @@ $lastReactionId = $stmt->fetchColumn();
 <script src="jquery-3.7.1.min.js"></script>
 <script>
     const appPrefix = "chatbox";
-    let lastMessageId = <?php echo $lastMessageId; ?>; // L'ID du dernier message chargé
-    let lastReactionId = <?php echo $lastReactionId; ?>; // L'ID de la dernière réaction chargée
+    let lastMessageId = <?php echo (is_null($lastMessageId) ? 0 : $lastMessageId); ?>; // L'ID du dernier message chargé
+    let lastReactionId = <?php echo (is_null($lastReactionId) ? 0 : $lastReactionId); ?>; // L'ID de la dernière réaction chargée
     const chatroomId = <?php echo $chatroom_id; ?>; // ID de la chatroom
     const chatroomCode = "<?php echo $code; ?>"; // ID de la chatroom
     const pseudo = "<?php echo $pseudo; ?>"; // Pseudo de l'utilisateur
@@ -382,7 +382,7 @@ $lastReactionId = $stmt->fetchColumn();
             text = text.substring(0, size-3) + "...";
         }
 
-        return text
+        return text;
     }
 
     // Fonction pour charger les nouveaux messages via AJAX
