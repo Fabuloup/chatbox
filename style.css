@@ -336,12 +336,6 @@ div:hover > .message-toolbar > *
 		max-width: 80%;
 	}
 
-	#messageForm
-	{
-		position: absolute;
-		bottom: 20px;
-	}
-
 	#messageForm > *
 	{
 		font-size: 1.4em;
@@ -350,6 +344,16 @@ div:hover > .message-toolbar > *
 	#messageForm > input[type=file]
 	{
 		max-width: 200px;
+	}
+
+	div:hover > .message-toolbar
+	{
+		height: auto;
+	}
+
+	.message-toolbar > *
+	{
+		font-size: 1.4em;
 	}
 
 	#emojiPopup
