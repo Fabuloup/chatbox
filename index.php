@@ -719,9 +719,6 @@ $lastReactionId = $stmt->fetchColumn();
                 const emoji = String.fromCodePoint(codePoint);
                 const emojiSpan = document.createElement('span');
                 emojiSpan.textContent = emoji;
-                emojiSpan.style.fontSize = '24px'; // Agrandir un peu les emojis
-                emojiSpan.style.cursor = 'pointer'; // Pour pointer quand on survole
-                emojiSpan.style.margin = '5px';
                 emojiSpan.title = emoji; // Optionnel, ajoute l'emoji en infobulle
                 emojiList.appendChild(emojiSpan);
             }
@@ -850,7 +847,6 @@ $lastReactionId = $stmt->fetchColumn();
 
     // Fonction pour afficher la popup d'emojis
     function showEmojiPopup() {
-        emojiPopup.style.left = '15vw';
         emojiPopup.style.top = `calc(5vh + ${window.scrollY}px)`;
         emojiPopup.style.display = 'block';
     }
