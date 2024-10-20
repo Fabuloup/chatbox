@@ -3,17 +3,20 @@ require 'db_connection.php'; // Include your database connection
 
 // Récupère le dernier message ID envoyé par l'AJAX
 $lastMessageId = isset($_GET['lastMessageId']) ? (int)$_GET['lastMessageId'] : 0;
+$lastUpdateTimestamp = isset($_GET['lastUpdateTimestamp']) ? $_GET['lastUpdateTimestamp'] : 0;
 $chatroomId = isset($_GET['chatroom_id']) ? (int)$_GET['chatroom_id'] : 0;
 
 // Récupérer les nouveaux messages (ceux qui ont un ID supérieur à $lastMessageId)
 $stmt = $pdo->prepare("
-    SELECT m.id, m.content, m.timestamp, u.pseudo 
+    SELECT m.id, m.content, m.timestamp, m.updated_at, u.pseudo 
     FROM message m 
     JOIN user u ON m.user_id = u.id 
-    WHERE m.chatroom_id = ? AND m.id > ? 
+    WHERE (m.chatroom_id = ? AND m.id > ?)
+    OR m.updated_at > ?
     ORDER BY m.timestamp ASC
 ");
-$stmt->execute([$chatroomId, $lastMessageId]);
+
+$stmt->execute([$chatroomId, $lastMessageId, $lastUpdateTimestamp]);
 $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $result = [];
