@@ -251,7 +251,7 @@ $messages = $stmt->fetchAll();
 
 echo "<!DOCTYPE html>";
 echo "<head>";
-echo "<link rel='stylesheet' href='style.css?version=1.0'>";
+echo "<link rel='stylesheet' href='style.css?version=1.1'>";
 echo "<link rel='icon' type='image/png' href='favicon.png' />";
 echo "</head>";
 
