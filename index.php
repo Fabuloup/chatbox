@@ -110,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message'])) {
     if(!empty($content) && isset($_POST['message_id']))
     {
         // Update the message in the database
-        $stmt = $pdo->prepare("UPDATE message SET content = ? WHERE id = ? AND user_id = ?");
+        $stmt = $pdo->prepare("UPDATE message SET content = ?, updated_at=NOW() WHERE id = ? AND user_id = ?");
         $stmt->execute([$content, $_POST['message_id'], $user_id]);
     }
     elseif(!empty($content))
@@ -271,7 +271,7 @@ echo "<h1>Chatbox: $code</h1>";
 echo <<<EOL
     <div class="theme-switcher-frame">
         <div class="theme-switcher-button">
-        </div
+        </div>
     </div>
 EOL;
 echo "</div>";
@@ -360,8 +360,9 @@ $lastReactionId = $stmt->fetchColumn();
 <script src="jquery-3.7.1.min.js"></script>
 <script>
     const appPrefix = "chatbox";
-    let lastMessageId = <?php echo $lastMessageId; ?>; // L'ID du dernier message chargé
-    let lastReactionId = <?php echo $lastReactionId; ?>; // L'ID de la dernière réaction chargée
+    let lastMessageId = <?php echo (is_null($lastMessageId) ? 0 : $lastMessageId); ?>; // L'ID du dernier message chargé
+    let lastUpdateTimestamp = new Date(Date.now()).toISOString().slice(0, 19).replace('T', ' ');; // L'ID du dernier message chargé
+    let lastReactionId = <?php echo (is_null($lastReactionId) ? 0 : $lastReactionId); ?>; // L'ID de la dernière réaction chargée
     const chatroomId = <?php echo $chatroom_id; ?>; // ID de la chatroom
     const chatroomCode = "<?php echo $code; ?>"; // ID de la chatroom
     const pseudo = "<?php echo $pseudo; ?>"; // Pseudo de l'utilisateur
@@ -382,7 +383,7 @@ $lastReactionId = $stmt->fetchColumn();
             text = text.substring(0, size-3) + "...";
         }
 
-        return text
+        return text;
     }
 
     // Fonction pour charger les nouveaux messages via AJAX
@@ -395,7 +396,7 @@ $lastReactionId = $stmt->fetchColumn();
                 return;
             }
             isLoadingMessages = true;
-            const response = await fetch(`fetch_messages.php?chatroom_id=${chatroomId}&lastMessageId=${lastMessageId}`);
+            const response = await fetch(`fetch_messages.php?chatroom_id=${chatroomId}&lastMessageId=${lastMessageId}&lastUpdateTimestamp=${lastUpdateTimestamp}`);
             const messages = await response.json();
 
             if (messages.length > 0) {
@@ -405,6 +406,7 @@ $lastReactionId = $stmt->fetchColumn();
                 let notificationsCount = parseInt(notificationsCounter.innerText);
 
                 messages.forEach(async message => {
+                    let isUpdated = false;
                     // Création de l'élément div pour chaque message
                     const messageDiv = document.createElement('div');
 
@@ -419,7 +421,7 @@ $lastReactionId = $stmt->fetchColumn();
                     // Ajouter un bouton d'édition si l'utilisateur est l'auteur du message
                     if (message.pseudo === pseudo) {
                         const editButton = document.createElement('button');
-                        editButton.textContent = 'Éditer';
+                        editButton.textContent = 'Edit';
                         editButton.classList.add('edit-button');
                         editButton.setAttribute('data-message-id', message.id)
 
@@ -474,18 +476,41 @@ $lastReactionId = $stmt->fetchColumn();
                     messageParentDiv.setAttribute("id", `message${message.id}`)
                     messageParentDiv.appendChild(messageDiv)
 
-                    // Ajouter le message dans le conteneur
-                    messagesContainer.appendChild(messageParentDiv);
+                    // On regarde si le message existe déjà
+                    if(document.getElementById(`message${message.id}`) === null)
+                    {
+                        // Ajouter le message dans le conteneur
+                        messagesContainer.appendChild(messageParentDiv);
+                    }
+                    else
+                    {
+                        isUpdated = true;
+                        // On mets à jour le message existant
+                        document.getElementById(`message${message.id}`).innerHTML = messageParentDiv.innerHTML;
+                    }
 
                     // Mettre à jour le dernier message ID
-                    lastMessageId = message.id;
+                    if(message.id > lastMessageId)
+                    {
+                        lastMessageId = message.id;
+                    }
+
+                    if(Date.parse(message.timestamp) > Date.parse(lastUpdateTimestamp))
+                    {
+                        lastUpdateTimestamp = message.timestamp;
+                    }
+
+                    if(Date.parse(message.updated_at) > Date.parse(lastUpdateTimestamp))
+                    {
+                        lastUpdateTimestamp = message.updated_at;
+                    }
 
 
                     //---------------
                     // Notifications
                     //---------------
 
-                    if (message.pseudo !== pseudo) {
+                    if (!isUpdated && message.pseudo !== pseudo) {
                         notificationsCount += 1;
 
                         // On ajoute la notification
@@ -719,9 +744,6 @@ $lastReactionId = $stmt->fetchColumn();
                 const emoji = String.fromCodePoint(codePoint);
                 const emojiSpan = document.createElement('span');
                 emojiSpan.textContent = emoji;
-                emojiSpan.style.fontSize = '24px'; // Agrandir un peu les emojis
-                emojiSpan.style.cursor = 'pointer'; // Pour pointer quand on survole
-                emojiSpan.style.margin = '5px';
                 emojiSpan.title = emoji; // Optionnel, ajoute l'emoji en infobulle
                 emojiList.appendChild(emojiSpan);
             }
@@ -850,7 +872,6 @@ $lastReactionId = $stmt->fetchColumn();
 
     // Fonction pour afficher la popup d'emojis
     function showEmojiPopup() {
-        emojiPopup.style.left = '15vw';
         emojiPopup.style.top = `calc(5vh + ${window.scrollY}px)`;
         emojiPopup.style.display = 'block';
     }

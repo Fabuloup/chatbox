@@ -97,6 +97,7 @@ code
 
 #messages-container
 {
+	width: 100%;
 	max-width: 900px;
 	max-height: 70vh;
 	overflow-y: scroll;
@@ -252,6 +253,7 @@ div:hover > .message-toolbar > *
 #emojiPopup
 {
 	position: absolute;
+	left: 15vw;
 	background: white;
 	border: 1px solid #ccc;
 	padding: 10px;
@@ -265,6 +267,13 @@ div:hover > .message-toolbar > *
 .night #emojiPopup
 {
 	background-color: #01303c;
+}
+
+#emojiList > *
+{
+	font-size: 24px;
+	cursor: pointer;
+	margin: 5px;
 }
 
 .theme-switcher {
@@ -304,7 +313,7 @@ div:hover > .message-toolbar > *
 	float: right;
 }
 
-@media only screen and (max-width: 767px) {
+@media only screen and (max-width: 1000px) {
 
 	body
 	{
@@ -319,11 +328,43 @@ div:hover > .message-toolbar > *
 	#messages-container
 	{
 		max-width: none;
+		max-height: 75vh;
 	}
 
 	#messages-container > div > div
 	{
 		max-width: 80%;
+	}
+
+	#messageForm > *
+	{
+		font-size: 1.4em;
+	}
+
+	#messageForm > input[type=file]
+	{
+		max-width: 200px;
+	}
+
+	div:hover > .message-toolbar
+	{
+		height: auto;
+	}
+
+	.message-toolbar > *
+	{
+		font-size: 1.4em;
+	}
+
+	#emojiPopup
+	{
+		max-width: 80vw;
+		left: 10vw;
+	}
+
+	#emojiList > *
+	{
+		font-size: 48px;
 	}
 
 	.pseudo
