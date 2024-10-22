@@ -11,8 +11,8 @@ $stmt = $pdo->prepare("
     SELECT m.id, m.content, m.timestamp, m.updated_at, u.pseudo 
     FROM message m 
     JOIN user u ON m.user_id = u.id 
-    WHERE (m.chatroom_id = ? AND m.id > ?)
-    OR m.updated_at > ?
+    WHERE m.chatroom_id = ? AND
+    (m.id > ? OR m.updated_at > ?)
     ORDER BY m.timestamp ASC
 ");
 
