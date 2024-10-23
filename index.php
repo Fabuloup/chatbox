@@ -696,7 +696,7 @@ $lastReactionId = $stmt->fetchColumn();
 
 
     var isSendingMessages = false;
-    function sendMessage() {
+    async function sendMessage() {
         if(isSendingMessages)
         {
             return;
