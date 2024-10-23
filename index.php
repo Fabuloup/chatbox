@@ -726,6 +726,10 @@ $lastReactionId = $stmt->fetchColumn();
             })
             .catch(error => console.error('Erreur lors de l\'envoi du message:', error));
         }
+        else
+        {
+            isSendingMessages = true;
+        }
     }
 
     // Pop-up d'emoji
