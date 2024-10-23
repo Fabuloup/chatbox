@@ -728,7 +728,7 @@ $lastReactionId = $stmt->fetchColumn();
         }
         else
         {
-            isSendingMessages = true;
+            isSendingMessages = false;
         }
     }
 
