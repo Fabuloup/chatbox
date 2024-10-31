@@ -437,11 +437,14 @@ $lastReactionId = $stmt->fetchColumn();
                         reactionsDiv.innerHTML = "Réactions : ";
 
                         reactions.forEach(reaction => {
-                            const reactionSpan = document.createElement('span');
-                            reactionSpan.style.marginRight = "10px";
-                            reactionSpan.title = reaction.users.join(", "); // Liste des utilisateurs au survol
-                            reactionSpan.textContent = `${reaction.emoji} ${reaction.count}`;
-                            reactionsDiv.appendChild(reactionSpan);
+                            if(reaction != null && reaction.users != null)
+                            {
+                                const reactionSpan = document.createElement('span');
+                                reactionSpan.style.marginRight = "10px";
+                                reactionSpan.title = reaction.users.join(", "); // Liste des utilisateurs au survol
+                                reactionSpan.textContent = `${reaction.emoji} ${reaction.count}`;
+                                reactionsDiv.appendChild(reactionSpan);
+                            }
                         });
 
                         messageDiv.appendChild(reactionsDiv);
