@@ -454,6 +454,7 @@ $lastReactionId = $stmt->fetchColumn();
                         reactionsDiv.innerHTML = "Réactions : ";
 
                         reactions.forEach(reaction => {
+                            console.log(reaction);
                             if(reaction != null && reaction.users != null)
                             {
                                 const reactionSpan = document.createElement('span');
