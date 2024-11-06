@@ -193,6 +193,7 @@ code
   font-size: 0.7em;
   content: attr(title);
   background: #fff;
+  color: #000;
   border: solid 1px #ddd;
   border-radius: 5px;
 }
