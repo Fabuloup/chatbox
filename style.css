@@ -185,7 +185,7 @@ code
 	position: relative;
 }
 
-.reactions span:hover:after {
+.reactions span:hover:after, .reactions span:active:after {
   position: absolute;
   bottom: 120%;
   left: -200%;
