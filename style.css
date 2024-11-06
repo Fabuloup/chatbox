@@ -180,6 +180,23 @@ code
 	background-color: #fff;
 }
 
+.reactions span
+{
+	position: relative;
+}
+
+.reactions span:hover:after {
+  position: absolute;
+  bottom: 120%;
+  left: -50%;
+  padding: 0px 5px;
+  font-size: 0.7em;
+  content: attr(title);
+  background: #fff;
+  border: solid 1px #ddd;
+  border-radius: 5px;
+}
+
 .react
 {
 	display: block;
