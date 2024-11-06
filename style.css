@@ -188,7 +188,7 @@ code
 .reactions span:hover:after {
   position: absolute;
   bottom: 120%;
-  left: -50%;
+  left: -200%;
   padding: 0px 5px;
   font-size: 0.7em;
   content: attr(title);
@@ -196,6 +196,8 @@ code
   color: #000;
   border: solid 1px #ddd;
   border-radius: 5px;
+  overflow-wrap: break-word;
+  max-width: 150px;
 }
 
 .react
