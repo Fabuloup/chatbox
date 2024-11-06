@@ -188,7 +188,7 @@ code
 .reactions span:hover:after {
   position: absolute;
   bottom: 120%;
-  left: -200%;
+  left: -70px;
   padding: 0px 5px;
   font-size: 0.7em;
   content: attr(title);
