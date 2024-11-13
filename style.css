@@ -198,6 +198,7 @@ code
   border-radius: 5px;
   overflow-wrap: break-word;
   max-width: 150px;
+  z-index: 110;
 }
 
 .react
